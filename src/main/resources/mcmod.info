@@ -1,0 +1,17 @@
+[
+  {
+    "modid": "balancedhurttimer",
+    "name": "Balanced Hurt Timer",
+    "description": "A balanced attack frame remover mod",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "Arekkuusu"
+    ],
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

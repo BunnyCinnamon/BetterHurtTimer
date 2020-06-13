@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "package": "arekkuusu.balancedhurttimer.mixin",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "mixins.balancedhurttimer.refmap.json",
+  "client": [
+    "HurtCameraEffectMixin",
+    "HurtAnimationMixin"
+  ],
+  "mixins": [
+    "AttackEntityMixin",
+    "HurtTimeMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
