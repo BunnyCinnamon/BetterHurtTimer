@@ -16,9 +16,9 @@ import org.lwjgl.opengl.GL11;
 @SideOnly(Side.CLIENT)
 public class DamageParticle extends Particle {
 
-    public String text;
+    public boolean grow = true;
     public float scale = 1.0F;
-    public boolean grow;
+    public String text;
     public int damage;
     public int color;
 
@@ -54,17 +54,13 @@ public class DamageParticle extends Particle {
         GL11.glScaled(this.scale, this.scale, this.scale);
 
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 0.003662109F);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        //GL11.glDisable(GL11.GL_BLEND);
-        GL11.glDepthMask(true);
-        GL11.glColor4f(1F, 1F, 1F, 1F);
-        //GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        //GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glColor4f(1F, 1F, 1F, 1F);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
-        //GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glDepthMask(true);
 
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         fontRenderer.drawStringWithShadow(this.text, -MathHelper.floor(fontRenderer.getStringWidth(this.text) / 2.0F) + 1, -MathHelper.floor(fontRenderer.FONT_HEIGHT / 2.0F) + 1, this.color);
@@ -79,7 +75,7 @@ public class DamageParticle extends Particle {
         super.onUpdate();
         if (this.grow) {
             this.particleScale *= 1.08F;
-            if (this.particleScale > 3F * 3.0D) {
+            if (this.particleScale > 3F * 2.0D) {
                 this.grow = false;
             }
         } else {
