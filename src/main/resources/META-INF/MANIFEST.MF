@@ -1,1 +1,2 @@
 MixinConnector: arekkuusu.balancedhurttimer.mixin.Connector
+TweakClass: org.spongepowered.asm.launch.MixinTweaker

@@ -4,6 +4,7 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_8",
   "refmap": "mixins.balancedhurttimer.refmap.json",
+  "target": "@env(DEFAULT)",
   "client": [
     "HurtCameraEffectMixin",
     "HurtAnimationMixin"

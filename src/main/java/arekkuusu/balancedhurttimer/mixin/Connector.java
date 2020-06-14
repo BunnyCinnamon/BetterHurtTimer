@@ -9,7 +9,7 @@ public class Connector implements IMixinConnector {
 
     @Override
     public void connect() {
-        BHT.LOG.log(Level.INFO, "[Connector] - Injected Mixin classes for mod " + BHT.MOD_NAME);
+        BHT.LOG.log(Level.INFO, "[Connector] - Loaded Mixin classes for mod " + BHT.MOD_NAME);
         Mixins.addConfiguration("assets/" + BHT.MOD_ID + "/" + BHT.MOD_ID + ".mixins.json");
     }
 }
