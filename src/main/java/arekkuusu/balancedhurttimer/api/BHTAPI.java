@@ -5,7 +5,6 @@ import arekkuusu.balancedhurttimer.api.capability.data.HurtSourceInfo;
 import arekkuusu.balancedhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +24,6 @@ public final class BHTAPI {
         HurtSourceInfo info = BHTAPI.HURT_SOURCE_INFO_MAP.computeIfAbsent(source.getDamageType(), HURT_SOURCE_INFO_FUNCTION.apply(entity));
         return Capabilities.hurt(entity).map(c ->
                 c.hurtMap.computeIfAbsent(source.getDamageType(), HURT_SOURCE_DATA_FUNCTION.apply(info))
-        ).orElseThrow(NotImplementedException::new);
+        ).orElseThrow(UnsupportedOperationException::new);
     }
 }
