@@ -1,4 +1,4 @@
-package arekkuusu.balancedhurttimer.mixin;
+package arekkuusu.balancedhurttimer.common.core;
 
 import arekkuusu.balancedhurttimer.BHT;
 import org.apache.logging.log4j.Level;

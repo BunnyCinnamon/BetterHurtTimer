@@ -22,13 +22,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("ConstantConditions")
-public class HurtLimiterCapability implements ICapabilitySerializable<NBTTagCompound>, Capability.IStorage<HurtLimiterCapability> {
+public class HurtCapability implements ICapabilitySerializable<NBTTagCompound>, Capability.IStorage<HurtCapability> {
 
     public Map<String, HurtSourceData> hurtMap = new HashMap<>();
-    public int ticksSinceLastMelee = 21;
+    public int ticksSinceLastMelee;
+    public int ticksToArmorDamage;
+    public int ticksToShieldDamage;
+    public double lastArmorDamage;
+    public double lastShieldDamage;
 
     public static void init() {
-        CapabilityManager.INSTANCE.register(HurtLimiterCapability.class, new HurtLimiterCapability(), HurtLimiterCapability::new);
+        CapabilityManager.INSTANCE.register(HurtCapability.class, new HurtCapability(), HurtCapability::new);
         MinecraftForge.EVENT_BUS.register(new Handler());
     }
 
@@ -58,20 +62,20 @@ public class HurtLimiterCapability implements ICapabilitySerializable<NBTTagComp
 
     @Override
     @Nullable
-    public NBTBase writeNBT(Capability<HurtLimiterCapability> capability, HurtLimiterCapability instance, EnumFacing side) {
+    public NBTBase writeNBT(Capability<HurtCapability> capability, HurtCapability instance, EnumFacing side) {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger(LAST_MELEE_TIMER_NBT, instance.ticksSinceLastMelee);
         return tag;
     }
 
     @Override
-    public void readNBT(Capability<HurtLimiterCapability> capability, HurtLimiterCapability instance, EnumFacing side, NBTBase nbt) {
+    public void readNBT(Capability<HurtCapability> capability, HurtCapability instance, EnumFacing side, NBTBase nbt) {
         NBTTagCompound tag = (NBTTagCompound) nbt;
         instance.ticksSinceLastMelee = tag.getInteger(LAST_MELEE_TIMER_NBT);
     }
 
     public static class Handler {
-        private static final ResourceLocation KEY = new ResourceLocation(BHT.MOD_ID, "HURT_LIMITER");
+        private static final ResourceLocation KEY = new ResourceLocation(BHT.MOD_ID, "HURT");
 
         @SubscribeEvent
         public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {

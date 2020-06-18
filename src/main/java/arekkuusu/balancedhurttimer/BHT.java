@@ -1,16 +1,21 @@
 package arekkuusu.balancedhurttimer;
 
 import arekkuusu.balancedhurttimer.api.BHTAPI;
-import arekkuusu.balancedhurttimer.api.capability.HurtLimiterCapability;
+import arekkuusu.balancedhurttimer.api.capability.HurtCapability;
 import arekkuusu.balancedhurttimer.api.capability.data.HurtSourceInfo;
 import arekkuusu.balancedhurttimer.common.proxy.IProxy;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Mod(
         modid = BHT.MOD_ID,
@@ -44,12 +49,39 @@ public class BHT {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        HurtLimiterCapability.init();
-        for (String filterSource : BHTConfig.CONFIG.attackFrames.filterSources) {
+        HurtCapability.init();
+    }
 
+    @EventHandler
+    public void postInit(FMLPostInitializationEvent event) {
+        this.initAttackFrames();
+        this.initDamageFrames();
+    }
+
+    public void initAttackFrames() {
+        String patternAttackFrames = "^(.*:.*):((\\d*\\.)?\\d+)$";
+        Pattern r = Pattern.compile(patternAttackFrames);
+        for (String s : BHTConfig.CONFIG.attackFrames.attackThreshold) {
+            Matcher m = r.matcher(s);
+            if (m.matches()) {
+                BHTAPI.addAttacker(new ResourceLocation(m.group(1)), Double.parseDouble(m.group(2)));
+            } else {
+                BHT.LOG.warn("[Attack Frames Config] - String " + s + " is not a valid format");
+            }
         }
+    }
 
-        BHTAPI.add(new HurtSourceInfo("skill", true, 20));
+    public void initDamageFrames() {
+        String patternAttackFrames = "^(.*):(true|false):?(\\d*)";
+        Pattern r = Pattern.compile(patternAttackFrames);
+        for (String s : BHTConfig.CONFIG.damageFrames.damageSource) {
+            Matcher m = r.matcher(s);
+            if (m.matches()) {
+                BHTAPI.addSource(new HurtSourceInfo(m.group(1), Boolean.parseBoolean(m.group(2)), Integer.parseInt(m.group(3))));
+            } else {
+                BHT.LOG.warn("[Damage Frames Config] - String " + s + " is not a valid format");
+            }
+        }
     }
 
     @EventHandler

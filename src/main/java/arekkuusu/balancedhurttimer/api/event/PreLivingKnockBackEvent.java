@@ -6,16 +6,14 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
-public class PreLivingAttackEvent extends Event {
+public class PreLivingKnockBackEvent extends Event {
 
     private final EntityLivingBase entityLiving;
     private final DamageSource source;
-    private float amount;
 
-    public PreLivingAttackEvent(EntityLivingBase entityLiving, DamageSource source, float amount) {
+    public PreLivingKnockBackEvent(EntityLivingBase entityLiving, DamageSource source) {
         this.entityLiving = entityLiving;
         this.source = source;
-        this.amount = amount;
     }
 
     public EntityLivingBase getEntityLiving() {
@@ -24,13 +22,5 @@ public class PreLivingAttackEvent extends Event {
 
     public DamageSource getSource() {
         return source;
-    }
-
-    public float getAmount() {
-        return amount;
-    }
-
-    public void setAmount(float amount) {
-        this.amount = amount;
     }
 }

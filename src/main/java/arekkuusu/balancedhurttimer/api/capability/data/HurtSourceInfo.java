@@ -21,16 +21,20 @@ public class HurtSourceInfo {
         public DamageSource damageSource;
         public boolean canApply;
         public float amount;
+        public float lastHurtAmount;
+        public int lastHurtTick;
         public int tick;
 
         public HurtSourceData(HurtSourceInfo info) {
             this.info = info;
             this.canApply = true;
+            this.lastHurtTick = info.waitTime + 1;
         }
 
         public void trigger() {
             this.tick = this.info.waitTime;
             this.canApply = false;
+            this.lastHurtAmount = -1;
         }
 
         public void accumulate(float damage) {

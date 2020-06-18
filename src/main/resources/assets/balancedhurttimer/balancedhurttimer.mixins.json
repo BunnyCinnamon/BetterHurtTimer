@@ -11,7 +11,10 @@
   ],
   "mixins": [
     "AttackEntityMixin",
-    "HurtTimeMixin"
+    "HurtTimeMixin",
+    "KnockbackMixin",
+    "DamageArmorMixin",
+    "DamageSpecialArmorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

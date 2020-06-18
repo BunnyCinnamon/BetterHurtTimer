@@ -29,6 +29,7 @@ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = co
 
 minecraft {
     mappings channel: "${mc_mappings_channel}", version: "${mc_mappings_version}"
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
             workingDirectory project.file('run')
@@ -82,7 +83,7 @@ jar {
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "MixinConnector": "arekkuusu.balancedhurttimer.mixin.Connector",
+            "MixinConnector": "arekkuusu.balancedhurttimer.common.core.Connector",
             "TweakClass": "org.spongepowered.asm.launch.MixinTweaker"
         ])
     }

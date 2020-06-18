@@ -2,7 +2,7 @@
   {
     "modid": "balancedhurttimer",
     "name": "Balanced Hurt Timer",
-    "description": "A balanced attack frame remover mod",
+    "description": "i-Frame and hurt animation tweaker",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "url": "",
