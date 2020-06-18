@@ -48,7 +48,7 @@ public abstract class HurtTimeMixin extends Entity {
 
     @Inject(method = "playHurtSound(Lnet/minecraft/util/DamageSource;)V", at = @At("HEAD"), cancellable = true)
     public void playHurtSound(DamageSource source, CallbackInfo info) {
-        if (this.hurtTime > this.maxHurtTime / 2) {
+        if (this.preHurtTime > this.maxHurtTime / 2) {
             info.cancel();
         }
     }
