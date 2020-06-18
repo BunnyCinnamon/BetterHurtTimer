@@ -25,7 +25,7 @@ public abstract class DamageSpecialArmorMixin {
     private static double ratioTemp;
     private static double damageAlt;
 
-    @Inject(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraft/entity/EntityLivingBase;getTotalArmorValue()I", value = "INVOKE", shift = At.Shift.BEFORE), remap = false)
+    @Inject(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Ljava/util/ArrayList;<init>()V", value = "INVOKE", shift = At.Shift.BEFORE), remap = false)
     private static void applyArmorPre(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage, CallbackInfoReturnable<Float> info) {
         HurtCapability capability = Capabilities.hurt(entity).orElse(null);
         if (capability != null) {
@@ -66,7 +66,7 @@ public abstract class DamageSpecialArmorMixin {
         }
     }
 
-    @Redirect(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraft/item/ItemStack;damageItem(ILnet/minecraft/entity/EntityLivingBase;)V", value = "INVOKE", ordinal = 0), remap = false)
+    @Redirect(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraft/item/ItemStack;damageItem(ILnet/minecraft/entity/EntityLivingBase;)V", value = "INVOKE", ordinal = 0))
     private static void modifyAbsorbItem(ItemStack stack, int amount, EntityLivingBase entityIn) {
         double damageTotal = damageAlt * absorbTemp;
         int dmg = (int) (damageTotal > 0 ? Math.max(1D, damageTotal) : 0D);
@@ -92,7 +92,7 @@ public abstract class DamageSpecialArmorMixin {
         return damageTotal > 0 ? Math.max(1D, damageTotal) : 0D;
     }
 
-    @Redirect(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraft/item/ItemStack;damageItem(ILnet/minecraft/entity/EntityLivingBase;)V", value = "INVOKE", ordinal = 1), remap = false)
+    @Redirect(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraft/item/ItemStack;damageItem(ILnet/minecraft/entity/EntityLivingBase;)V", value = "INVOKE", ordinal = 1))
     private static void applyLeftoverDamage(ItemStack stack, int amount, EntityLivingBase entityIn) {
         if (amount > 0) {
             stack.damageItem(amount, entityIn);
