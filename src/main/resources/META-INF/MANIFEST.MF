@@ -1,2 +1,2 @@
-MixinConnector: arekkuusu.balancedhurttimer.common.core.Connector
+MixinConnector: arekkuusu.betterhurttimer.common.core.Connector
 TweakClass: org.spongepowered.asm.launch.MixinTweaker
