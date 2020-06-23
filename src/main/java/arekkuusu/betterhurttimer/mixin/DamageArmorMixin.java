@@ -20,7 +20,7 @@ public abstract class DamageArmorMixin {
         HurtCapability capability = Capabilities.hurt(entity).orElse(null);
         if (capability != null) {
             if (capability.ticksToShieldDamage > 0) {
-                if (Double.compare(capability.lastShieldDamage + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference, damage) < 0) {
+                if (Double.compare(Math.max(0, capability.lastShieldDamage + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference), damage) < 0) {
                     damageShield((float) (damage - capability.lastShieldDamage));
                     capability.lastShieldDamage = damage;
                 }
@@ -39,7 +39,7 @@ public abstract class DamageArmorMixin {
         HurtCapability capability = Capabilities.hurt(entity).orElse(null);
         if (capability != null) {
             if (capability.ticksToArmorDamage > 0) {
-                if (Double.compare(capability.lastArmorDamage + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference, damage) < 0) {
+                if (Double.compare(Math.max(0, capability.lastArmorDamage + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference), damage) < 0) {
                     damageArmor((float) (damage - capability.lastArmorDamage));
                     capability.lastArmorDamage = damage;
                 }

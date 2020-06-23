@@ -33,6 +33,7 @@ public class Events {
     public static void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
         if (isClientWorld(event.getEntity())) return;
         Capabilities.hurt(event.getEntity()).ifPresent(capability -> {
+            //Source Damage i-Frames
             capability.hurtMap.forEach((s, data) -> {
                 ++data.lastHurtTick;
                 if (data.tick > 0) {
@@ -44,12 +45,15 @@ public class Events {
                     Events.onAttackEntityOverride = true;
                 }
             });
+            //Melee i-Frames
             ++capability.ticksSinceLastMelee;
+            //Armor i-Frames
             if (capability.ticksToArmorDamage > 0) {
                 --capability.ticksToArmorDamage;
             } else {
                 capability.lastArmorDamage = 0;
             }
+            //Shield i-Frames
             if (capability.ticksToShieldDamage > 0) {
                 --capability.ticksToShieldDamage;
             } else {
@@ -78,13 +82,16 @@ public class Events {
                 event.setCanceled(true);
             }
         } else if (data.tick != 0) {
+            float lastAmount = event.getAmount();
             if (data.lastHurtTick < data.info.waitTime) {
-                if (Double.compare(data.lastHurtAmount + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference, event.getAmount()) >= 0) {
-                    event.setCanceled(true);
+                if (Double.compare(Math.max(0, data.lastHurtAmount + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference), event.getAmount()) < 0) {
+                    event.setAmount(lastAmount - Math.max(0, data.lastHurtAmount));
+                    data.lastHurtAmount = lastAmount;
                 } else {
-                    data.lastHurtAmount = event.getAmount();
-                    event.setAmount(event.getAmount() - data.lastHurtAmount);
+                    event.setCanceled(true);
                 }
+            } else {
+                data.lastHurtAmount = lastAmount;
             }
         } else {
             data.canApply = true;

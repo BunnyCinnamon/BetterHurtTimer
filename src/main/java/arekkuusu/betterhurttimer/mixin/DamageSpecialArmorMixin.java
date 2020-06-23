@@ -31,7 +31,7 @@ public abstract class DamageSpecialArmorMixin {
         HurtCapability capability = Capabilities.hurt(entity).orElse(null);
         if (capability != null) {
             if (capability.ticksToArmorDamage > 0) {
-                if (Double.compare(capability.lastArmorDamage + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference, damage) < 0) {
+                if (Double.compare(Math.max(0, capability.lastArmorDamage + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference), damage) < 0) {
                     damageAlt = damage - capability.lastArmorDamage;
                     capability.lastArmorDamage = damage;
                 }

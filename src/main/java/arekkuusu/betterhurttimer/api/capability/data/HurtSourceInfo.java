@@ -1,5 +1,6 @@
 package arekkuusu.betterhurttimer.api.capability.data;
 
+import arekkuusu.betterhurttimer.BHTConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.DamageSource;
 
@@ -34,7 +35,9 @@ public class HurtSourceInfo {
         public void trigger() {
             this.tick = this.info.waitTime;
             this.canApply = false;
-            this.lastHurtAmount = -1;
+            if(lastHurtTick > info.waitTime) {
+                this.lastHurtAmount = Integer.MIN_VALUE;
+            }
         }
 
         public void accumulate(float damage) {
