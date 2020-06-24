@@ -1,67 +1,75 @@
 package arekkuusu.betterhurttimer;
 
 import arekkuusu.betterhurttimer.api.BHTAPI;
+import arekkuusu.betterhurttimer.api.capability.HealthCapability;
 import arekkuusu.betterhurttimer.api.capability.HurtCapability;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo;
+import arekkuusu.betterhurttimer.client.ClientProxy;
+import arekkuusu.betterhurttimer.common.ServerProxy;
 import arekkuusu.betterhurttimer.common.proxy.IProxy;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Mod(
-        modid = BHT.MOD_ID,
-        name = BHT.MOD_NAME,
-        version = BHT.MOD_VERSION,
-        acceptedMinecraftVersions = "[1.12.2]",
-        certificateFingerprint = "72cd337644e68ff7257f69b2927894048793e577"
-)
-public class BHT {
+@Mod(BHT.MOD_ID)
+public final class BHT {
 
     //Useful names
     public static final String MOD_ID = "betterhurttimer";
     public static final String MOD_NAME = "Better Hurt Timer";
-    public static final String MOD_VERSION = "1.12.2-1.0.0.0";
-    public static final String SERVER_PROXY = "arekkuusu." + MOD_ID + ".common.ServerProxy";
-    public static final String CLIENT_PROXY = "arekkuusu." + MOD_ID + ".client.ClientProxy";
 
-    @SidedProxy(serverSide = SERVER_PROXY, clientSide = CLIENT_PROXY)
     private static IProxy proxy;
-    private static final BHT INSTANCE = new BHT();
     public static final Logger LOG = LogManager.getLogger(MOD_NAME);
 
     public static IProxy getProxy() {
         return proxy;
     }
 
-    @Mod.InstanceFactory
-    public static BHT getInstance() {
-        return INSTANCE;
+    public BHT() {
+        proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, BHTConfig.Holder.CLIENT_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, BHTConfig.Holder.COMMON_SPEC);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onModConfigEvent);
     }
 
-    @EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
+    public void setup(final FMLCommonSetupEvent event) {
         HurtCapability.init();
     }
 
-    @EventHandler
-    public void postInit(FMLPostInitializationEvent event) {
-        this.initAttackFrames();
-        this.initDamageFrames();
+    public void setupClient(final FMLClientSetupEvent event) {
+        HealthCapability.init();
+    }
+
+    public void onModConfigEvent(ModConfig.ModConfigEvent event) {
+        ModConfig config = event.getConfig();
+        if (config.getSpec() == BHTConfig.Holder.CLIENT_SPEC) {
+            BHTConfig.Setup.client(config);
+            LOG.debug("Baked client config");
+        } else if (config.getSpec() == BHTConfig.Holder.COMMON_SPEC) {
+            BHTConfig.Setup.server(config);
+            this.initAttackFrames();
+            this.initDamageFrames();
+            LOG.debug("Baked server config");
+        }
     }
 
     public void initAttackFrames() {
+        BHTAPI.ATTACK_THRESHOLD_MAP.clear();
         String patternAttackFrames = "^(.*:.*):((\\d*\\.)?\\d+)$";
         Pattern r = Pattern.compile(patternAttackFrames);
-        for (String s : BHTConfig.CONFIG.attackFrames.attackThreshold) {
+        for (String s : BHTConfig.Runtime.AttackFrames.attackThreshold) {
             Matcher m = r.matcher(s);
             if (m.matches()) {
                 BHTAPI.addAttacker(new ResourceLocation(m.group(1)), Double.parseDouble(m.group(2)));
@@ -72,9 +80,10 @@ public class BHT {
     }
 
     public void initDamageFrames() {
+        BHTAPI.DAMAGE_SOURCE_INFO_MAP.clear();
         String patternAttackFrames = "^(.*):(true|false):?(\\d*)";
         Pattern r = Pattern.compile(patternAttackFrames);
-        for (String s : BHTConfig.CONFIG.damageFrames.damageSource) {
+        for (String s : BHTConfig.Runtime.DamageFrames.damageSource) {
             Matcher m = r.matcher(s);
             if (m.matches()) {
                 BHTAPI.addSource(new HurtSourceInfo(m.group(1), Boolean.parseBoolean(m.group(2)), Integer.parseInt(m.group(3))));
@@ -84,8 +93,8 @@ public class BHT {
         }
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onFingerprintViolation(FMLFingerprintViolationEvent event) {
         LOG.warn("Invalid fingerprint detected!");
-    }
+    }*/
 }

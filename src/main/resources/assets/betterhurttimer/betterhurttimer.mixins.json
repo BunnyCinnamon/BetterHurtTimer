@@ -13,8 +13,7 @@
     "AttackEntityMixin",
     "HurtTimeMixin",
     "KnockbackMixin",
-    "DamageArmorMixin",
-    "DamageSpecialArmorMixin"
+    "DamageArmorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,6 +1,5 @@
 package arekkuusu.betterhurttimer.api.capability.data;
 
-import arekkuusu.betterhurttimer.BHTConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.DamageSource;
 

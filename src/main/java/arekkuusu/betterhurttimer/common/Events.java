@@ -8,20 +8,19 @@ import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceDa
 import arekkuusu.betterhurttimer.api.event.PreLivingAttackEvent;
 import arekkuusu.betterhurttimer.api.event.PreLivingKnockBackEvent;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
-import java.util.Arrays;
 
 @Mod.EventBusSubscriber(modid = BHT.MOD_ID)
 public class Events {
@@ -69,8 +68,10 @@ public class Events {
         DamageSource source = event.getSource();
         if (Events.isAttack(source)) return; //If my source is melee, return
 
-        EntityLivingBase entity = event.getEntityLiving();
-        HurtSourceData data = BHTAPI.get(entity, source);
+        LivingEntity entity = event.getEntityLiving();
+        LazyOptional<HurtSourceData> optional = BHTAPI.get(entity, source);
+        if(!optional.isPresent()) return;
+        HurtSourceData data = optional.orElseThrow(UnsupportedOperationException::new);
         data.damageSource = source; //Last source to do the damage gets the kill
         if (data.tick == 0 && data.canApply) {
             data.trigger();
@@ -84,7 +85,7 @@ public class Events {
         } else if (data.tick != 0) {
             float lastAmount = event.getAmount();
             if (data.lastHurtTick < data.info.waitTime) {
-                if (Double.compare(Math.max(0, data.lastHurtAmount + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference), event.getAmount()) < 0) {
+                if (Double.compare(Math.max(0, data.lastHurtAmount + BHTConfig.Runtime.DamageFrames.nextAttackDamageDifference), event.getAmount()) < 0) {
                     event.setAmount(lastAmount - Math.max(0, data.lastHurtAmount));
                     data.lastHurtAmount = lastAmount;
                 } else {
@@ -103,7 +104,7 @@ public class Events {
     public static void onEntityAttack(LivingAttackEvent event) {
         if (isClientWorld(event.getEntity())) return;
         DamageSource source = event.getSource();
-        if (!(source.getImmediateSource() instanceof EntityLivingBase) || event.getAmount() <= 0) return;
+        if (!(source.getImmediateSource() instanceof LivingEntity) || event.getAmount() <= 0) return;
         if (!Events.isAttack(source)) return;
         Entity target = event.getEntity();
         Entity attacker = source.getImmediateSource();
@@ -122,41 +123,41 @@ public class Events {
     }
 
     public static double getHurtResistantTime(Entity entity) {
-        return entity instanceof EntityLivingBase ?
-                ((EntityLivingBase) entity).maxHurtResistantTime
+        return entity instanceof LivingEntity ?
+                ((LivingEntity) entity).maxHurtResistantTime
                 : Events.maxHurtResistantTime;
     }
 
     public static double getAttackSpeed(Entity entity) {
         double attackSpeed = SharedMonsterAttributes.ATTACK_SPEED.getDefaultValue();
         IAttributeInstance attribute = null;
-        if (entity instanceof EntityLivingBase) {
-            attribute = ((EntityLivingBase) entity).getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED);
+        if (entity instanceof LivingEntity) {
+            attribute = ((LivingEntity) entity).getAttribute(SharedMonsterAttributes.ATTACK_SPEED);
         }
         if (attribute != null) {
-            attackSpeed = attribute.getAttributeValue();
+            attackSpeed = attribute.getValue();
         }
         return 1 - (1 / (1D / attackSpeed * 20D));
     }
 
     public static double getThreshold(Entity entity) {
-        ResourceLocation location = EntityList.getKey(entity.getClass());
-        double threshold = BHTConfig.CONFIG.attackFrames.attackThresholdDefault;
-        if (entity instanceof EntityPlayer)
-            threshold = BHTConfig.CONFIG.attackFrames.attackThresholdPlayer;
-        if (location != null && BHTAPI.ATTACK_THRESHOLD_MAP.containsKey(location))
+        ResourceLocation location = EntityType.getKey(entity.getType());
+        double threshold = BHTConfig.Runtime.AttackFrames.attackThresholdDefault;
+        if (entity instanceof PlayerEntity)
+            threshold = BHTConfig.Runtime.AttackFrames.attackThresholdPlayer;
+        if (BHTAPI.ATTACK_THRESHOLD_MAP.containsKey(location))
             threshold = BHTAPI.ATTACK_THRESHOLD_MAP.get(location);
         return threshold;
     }
 
     public static boolean isAttack(DamageSource source) {
-        return Arrays.asList(BHTConfig.CONFIG.attackFrames.attackSources).contains(source.getDamageType());
+        return BHTConfig.Runtime.AttackFrames.attackSources.contains(source.getDamageType());
     }
 
     @SubscribeEvent()
     public static void onKnockback(PreLivingKnockBackEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
-        if (Arrays.asList(BHTConfig.CONFIG.knockbackFrames.knockbackExemptSource).contains(event.getSource().getDamageType())) {
+        if (BHTConfig.Runtime.KnockbackFrames.knockbackExemptSource.contains(event.getSource().getDamageType())) {
             event.setCanceled(true);
         }
     }

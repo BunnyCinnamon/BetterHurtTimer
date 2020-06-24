@@ -2,7 +2,8 @@ package arekkuusu.betterhurttimer.mixin;
 
 import arekkuusu.betterhurttimer.BHTConfig;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(EntityLivingBase.class)
+@Mixin(LivingEntity.class)
 public abstract class HurtTimeMixin extends Entity {
 
     @Shadow
@@ -21,8 +22,8 @@ public abstract class HurtTimeMixin extends Entity {
     public int maxHurtTime;
     public int preHurtTime;
 
-    public HurtTimeMixin(World p_i1582_1_) {
-        super(p_i1582_1_);
+    public HurtTimeMixin(EntityType<?> entityTypeIn, World worldIn) {
+        super(entityTypeIn, worldIn);
     }
 
     @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At("HEAD"))
@@ -34,9 +35,9 @@ public abstract class HurtTimeMixin extends Entity {
         }
     }
 
-    @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;hurtTime:I", shift = At.Shift.AFTER))
+    @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;hurtTime:I", shift = At.Shift.AFTER))
     public void hurtResistantTime(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
-        this.hurtResistantTime = BHTConfig.CONFIG.damageFrames.hurtResistantTime;
+        this.hurtResistantTime = BHTConfig.Runtime.DamageFrames.hurtResistantTime;
     }
 
     @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At("TAIL"))

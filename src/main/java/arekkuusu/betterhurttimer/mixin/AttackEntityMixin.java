@@ -1,7 +1,7 @@
 package arekkuusu.betterhurttimer.mixin;
 
 import arekkuusu.betterhurttimer.api.event.PreLivingAttackEvent;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
@@ -16,8 +16,8 @@ public class AttackEntityMixin {
 
     private static float amountTemp;
 
-    @Inject(method = "onLivingAttack(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "HEAD"), cancellable = true, remap = false)
-    private static void onLivingAttack(EntityLivingBase entity, DamageSource src, float amount, CallbackInfoReturnable<Boolean> info) {
+    @Inject(method = "onLivingAttack(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "HEAD"), cancellable = true, remap = false)
+    private static void onLivingAttack(LivingEntity entity, DamageSource src, float amount, CallbackInfoReturnable<Boolean> info) {
         PreLivingAttackEvent event = new PreLivingAttackEvent(entity, src, amount);
         if (MinecraftForge.EVENT_BUS.post(event)) {
             info.setReturnValue(false);
@@ -27,7 +27,7 @@ public class AttackEntityMixin {
         }
     }
 
-    @ModifyVariable(method = "onLivingAttack(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraftforge/common/MinecraftForge;EVENT_BUS:Lnet/minecraftforge/fml/common/eventhandler/EventBus;", value = "FIELD", shift = At.Shift.BEFORE), remap = false)
+    @ModifyVariable(method = "onLivingAttack(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraftforge/common/MinecraftForge;EVENT_BUS:Lnet/minecraftforge/eventbus/api/IEventBus;", value = "FIELD", shift = At.Shift.BEFORE), remap = false)
     private static float onLivingAttackAmountSet(float amount) {
         return amountTemp;
     }
