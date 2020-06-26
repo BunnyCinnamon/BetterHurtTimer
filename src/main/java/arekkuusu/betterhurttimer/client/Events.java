@@ -6,6 +6,7 @@ import arekkuusu.betterhurttimer.api.capability.Capabilities;
 import arekkuusu.betterhurttimer.client.render.effect.DamageParticle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.World;
@@ -34,7 +35,7 @@ public class Events {
     public static void displayParticle(Entity entity, int damage) {
         if (damage == 0) return;
 
-        World world = entity.world;
+        ClientWorld world = (ClientWorld) entity.world;
         double motionX = world.rand.nextGaussian() * 0.02;
         double motionY = 0.5f;
         double motionZ = world.rand.nextGaussian() * 0.02;

@@ -10,8 +10,8 @@ import arekkuusu.betterhurttimer.api.event.PreLivingKnockBackEvent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
@@ -129,10 +129,10 @@ public class Events {
     }
 
     public static double getAttackSpeed(Entity entity) {
-        double attackSpeed = SharedMonsterAttributes.ATTACK_SPEED.getDefaultValue();
-        IAttributeInstance attribute = null;
+        double attackSpeed = Attributes.field_233825_h_.getDefaultValue();
+        ModifiableAttributeInstance attribute = null;
         if (entity instanceof LivingEntity) {
-            attribute = ((LivingEntity) entity).getAttribute(SharedMonsterAttributes.ATTACK_SPEED);
+            attribute = ((LivingEntity) entity).getAttribute(Attributes.field_233825_h_);
         }
         if (attribute != null) {
             attackSpeed = attribute.getValue();

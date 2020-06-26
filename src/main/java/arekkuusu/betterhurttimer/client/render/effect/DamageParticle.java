@@ -7,8 +7,9 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.particle.IParticleRenderType;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -24,7 +25,7 @@ public class DamageParticle extends Particle {
     public String text;
     public int color;
 
-    public DamageParticle(int damage, World world, double parX, double parY, double parZ, double parMotionX, double parMotionY, double parMotionZ) {
+    public DamageParticle(int damage, ClientWorld world, double parX, double parY, double parZ, double parMotionX, double parMotionY, double parMotionZ) {
         super(world, parX, parY, parZ, parMotionX, parMotionY, parMotionZ);
         this.particleGravity = 0.1F;
         this.scale = 1F;
@@ -35,7 +36,7 @@ public class DamageParticle extends Particle {
 
     @Override
     public void renderParticle(@Nonnull IVertexBuilder buffer, @Nonnull ActiveRenderInfo renderInfo, float partialTicks) {
-        Vec3d vec3d = renderInfo.getProjectedView();
+        Vector3d vec3d = renderInfo.getProjectedView();
         float rotationYaw = -renderInfo.getRenderViewEntity().rotationYaw;
         float rotationPitch = renderInfo.getRenderViewEntity().rotationPitch;
 
@@ -63,7 +64,7 @@ public class DamageParticle extends Particle {
         GL11.glDepthMask(true);
 
         final FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
-        fontRenderer.drawStringWithShadow(this.text, -MathHelper.floor(fontRenderer.getStringWidth(this.text) / 2.0F) + 1, -MathHelper.floor(fontRenderer.FONT_HEIGHT / 2.0F) + 1, this.color);
+        //fontRenderer.renderString(this.text, -MathHelper.floor(fontRenderer.getStringWidth(this.text) / 2.0F) + 1, -MathHelper.floor(fontRenderer.FONT_HEIGHT / 2.0F) + 1, this.color, );
 
         GL11.glColor4f(1F, 1F, 1F, 1F);
         GL11.glDepthFunc(GL11.GL_LEQUAL);

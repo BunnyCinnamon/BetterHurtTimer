@@ -36,28 +36,28 @@ public abstract class DamageArmorMixin {
         }
     }
 
-    @Redirect(method = "applyArmorCalculations(Lnet/minecraft/util/DamageSource;F)F", at = @At(target = "Lnet/minecraft/entity/LivingEntity;damageArmor(F)V", value = "INVOKE"))
-    public void damageArmor(LivingEntity entity, float damage) {
+    @Redirect(method = "applyArmorCalculations(Lnet/minecraft/util/DamageSource;F)F", at = @At(target = "Lnet/minecraft/entity/LivingEntity;func_230294_b_(Lnet/minecraft/util/DamageSource;F)V", value = "INVOKE"))
+    public void damageArmor(LivingEntity entity, DamageSource source, float damage) {
         LazyOptional<HurtCapability> optional = Capabilities.hurt(entity);
         if (optional.isPresent()) {
             HurtCapability capability = optional.orElseThrow(UnsupportedOperationException::new);
             if (capability.ticksToArmorDamage > 0) {
                 if (Double.compare(Math.max(0, capability.lastArmorDamage + BHTConfig.Runtime.DamageFrames.nextAttackDamageDifference), damage) < 0) {
-                    damageArmor((float) (damage - capability.lastArmorDamage));
+                    func_230294_b_(source, (float) (damage - capability.lastArmorDamage));
                     capability.lastArmorDamage = damage;
                 }
             } else {
-                damageArmor(damage);
+                func_230294_b_(source, damage);
                 capability.lastArmorDamage = damage;
                 capability.ticksToArmorDamage = BHTConfig.Runtime.DamageFrames.armorResistantTime;
             }
         } else {
-            damageArmor(damage);
+            func_230294_b_(source, damage);
         }
     }
 
     @Shadow
-    protected abstract void damageArmor(float damage);
+    protected abstract void func_230294_b_(DamageSource p_230294_1_, float p_230294_2_);
 
     @Shadow
     protected abstract void damageShield(float damage);
