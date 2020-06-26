@@ -9,16 +9,17 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntityLivingBase.class)
 public abstract class HurtTimeMixin extends Entity {
 
-    @Shadow
-    public int hurtTime;
-    @Shadow
-    public int maxHurtTime;
+    @Shadow public int hurtTime;
+    @Shadow public int maxHurtTime;
+    @Shadow public float attackedAtYaw;
+    public float preAttackedAtYaw;
     public int preHurtTime;
 
     public HurtTimeMixin(World p_i1582_1_) {
@@ -32,6 +33,11 @@ public abstract class HurtTimeMixin extends Entity {
         } else {
             this.preHurtTime = 0;
         }
+        if (this.attackedAtYaw > 0) {
+            this.preAttackedAtYaw = this.attackedAtYaw;
+        } else {
+            this.preAttackedAtYaw = 0;
+        }
     }
 
     @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;hurtTime:I", shift = At.Shift.AFTER))
@@ -39,17 +45,30 @@ public abstract class HurtTimeMixin extends Entity {
         this.hurtResistantTime = BHTConfig.CONFIG.damageFrames.hurtResistantTime;
     }
 
+    @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/EntityLivingBase;playHurtSound(Lnet/minecraft/util/DamageSource;)V"))
+    public void playHurtSound(EntityLivingBase that, DamageSource source) {
+        if (this.preHurtTime > this.maxHurtTime) {
+            this.playHurtSound(source);
+        }
+    }
+
     @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At("TAIL"))
     public void attackEntityFromAfter(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
         if (this.preHurtTime > 0) {
             this.hurtTime = this.preHurtTime;
         }
+        if (this.preAttackedAtYaw > 0) {
+            this.attackedAtYaw = this.preAttackedAtYaw;
+        }
     }
 
     @Inject(method = "playHurtSound(Lnet/minecraft/util/DamageSource;)V", at = @At("HEAD"), cancellable = true)
     public void playHurtSound(DamageSource source, CallbackInfo info) {
-        if (this.preHurtTime > this.maxHurtTime / 2) {
+        if (this.preHurtTime < this.maxHurtTime) {
             info.cancel();
         }
     }
+
+    @Shadow
+    protected abstract void playHurtSound(DamageSource source);
 }

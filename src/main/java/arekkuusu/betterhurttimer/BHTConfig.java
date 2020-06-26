@@ -113,6 +113,7 @@ public class BHTConfig {
         public final Rendering rendering = new Rendering();
 
         public static class Rendering {
+            public boolean doHurtCameraEffect = true;
             public boolean showDamageParticles = true;
             public int damageColor = 0xFF0000;
             public int healColor = 0x00FF00;
