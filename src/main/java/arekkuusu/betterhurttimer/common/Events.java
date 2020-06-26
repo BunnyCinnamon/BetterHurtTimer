@@ -137,7 +137,7 @@ public class Events {
         if (attribute != null) {
             attackSpeed = attribute.getValue();
         }
-        return 1 - (1 / (1D / attackSpeed * 20D));
+        return 1.2D - (1.2D / (1.2D / attackSpeed * 20D));
     }
 
     public static double getThreshold(Entity entity) {
