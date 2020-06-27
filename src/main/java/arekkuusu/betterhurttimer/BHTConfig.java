@@ -102,6 +102,8 @@ public class BHTConfig {
         }
 
         public static class KnockbackFrames {
+            @Config.Comment("Set this to false to activate 1.16+ knockback mechanics.")
+            public boolean knockbackAsAChance = false;
             @Config.Comment("Damage Sources will not apply knockback when on this list.")
             public String[] knockbackExemptSource = {
                     "indirectSkill"
