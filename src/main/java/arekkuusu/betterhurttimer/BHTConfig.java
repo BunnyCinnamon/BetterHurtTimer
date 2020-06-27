@@ -20,6 +20,7 @@ public final class BHTConfig {
         public final ForgeConfigSpec.DoubleValue attackThresholdDefault;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> attackThreshold;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> attackSources;
+        public final ForgeConfigSpec.BooleanValue knockbackAsAChance;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> knockbackExemptSource;
 
         public Common(ForgeConfigSpec.Builder builder) {
@@ -107,6 +108,9 @@ public final class BHTConfig {
             // knockbackFrames
             builder.comment("Knockback Sources filter")
                     .push("knockbackFrames");
+            knockbackAsAChance = builder
+                    .comment("Set this to false to activate 1.16+ knockback mechanics.")
+                    .define("knockbackAsAChance", false);
             //noinspection ArraysAsListWithZeroOrOneArgument
             knockbackExemptSource = builder
                     .comment("Damage Sources will not apply knockback when on this list.")
@@ -186,6 +190,7 @@ public final class BHTConfig {
             Runtime.AttackFrames.attackThreshold = Holder.COMMON.attackThreshold.get();
             Runtime.AttackFrames.attackSources = Holder.COMMON.attackSources.get();
             // KnockbackFrames
+            Runtime.KnockbackFrames.knockbackAsAChance = Holder.COMMON.knockbackAsAChance.get();
             Runtime.KnockbackFrames.knockbackExemptSource = Holder.COMMON.knockbackExemptSource.get();
         }
     }
@@ -208,6 +213,7 @@ public final class BHTConfig {
         }
 
         public static class KnockbackFrames {
+            public static boolean knockbackAsAChance;
             public static List<? extends String> knockbackExemptSource;
         }
 
