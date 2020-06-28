@@ -47,6 +47,9 @@ public class Events {
             });
             //Melee i-Frames
             ++capability.ticksSinceLastMelee;
+            if(!capability.lastMeleeUUID.isEmpty()) {
+                capability.lastMeleeUUID.clear();
+            }
             //Armor i-Frames
             if (capability.ticksToArmorDamage > 0) {
                 --capability.ticksToArmorDamage;
@@ -113,7 +116,7 @@ public class Events {
             double threshold = Events.getThreshold(attacker);
             //Calculate last hurt time required
             int ticksSinceLastHurt = (int) ((float) maxHurtResistantTime * (attackerAttackSpeed * threshold));
-            if (capability.ticksSinceLastMelee < ticksSinceLastHurt) {
+            if (capability.ticksSinceLastMelee < ticksSinceLastHurt && !(capability.ticksSinceLastMelee == 0 && capability.lastMeleeUUID.add(target.getUniqueID()))) {
                 event.setCanceled(true);
             } else {
                 capability.ticksSinceLastMelee = 0;

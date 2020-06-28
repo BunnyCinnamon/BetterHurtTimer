@@ -19,12 +19,16 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.UUID;
+import java.util.Set;
 
 @SuppressWarnings("ConstantConditions")
 public class HurtCapability implements ICapabilitySerializable<NBTTagCompound>, Capability.IStorage<HurtCapability> {
 
     public Map<String, HurtSourceData> hurtMap = new HashMap<>();
+    public Set<UUID> lastMeleeUUID = new HashSet<>(5, 15);
     public int ticksSinceLastMelee;
     public int ticksToArmorDamage;
     public int ticksToShieldDamage;
