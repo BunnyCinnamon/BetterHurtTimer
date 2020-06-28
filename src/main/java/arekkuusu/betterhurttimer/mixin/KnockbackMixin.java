@@ -25,7 +25,7 @@ public abstract class KnockbackMixin {
         }
     }
 
-    @ModifyVariable(method = "knockBack(Lnet/minecraft/entity/Entity;FDD)V", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraftforge/event/entity/living/LivingKnockBackEvent;getStrength()F", shift = At.Shift.AFTER))
+    @ModifyVariable(method = "knockBack(Lnet/minecraft/entity/Entity;FDD)V", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraftforge/event/entity/living/LivingKnockBackEvent;getStrength()F", shift = At.Shift.AFTER), remap = false)
     public float knockBackScale(float strength) {
         if(BHTConfig.Runtime.KnockbackFrames.knockbackAsAChance) {
             return strength;

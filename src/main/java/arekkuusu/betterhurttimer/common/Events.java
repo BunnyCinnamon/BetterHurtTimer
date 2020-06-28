@@ -114,7 +114,7 @@ public class Events {
             double threshold = Events.getThreshold(attacker);
             //Calculate last hurt time required
             int ticksSinceLastHurt = (int) ((float) maxHurtResistantTime * (attackerAttackSpeed * threshold));
-            if (capability.ticksSinceLastMelee < ticksSinceLastHurt) {
+            if (capability.ticksSinceLastMelee < ticksSinceLastHurt && !(capability.ticksSinceLastMelee == 0 && capability.lastMeleeUUID.add(target.getUniqueID()))) {
                 event.setCanceled(true);
             } else {
                 capability.ticksSinceLastMelee = 0;
