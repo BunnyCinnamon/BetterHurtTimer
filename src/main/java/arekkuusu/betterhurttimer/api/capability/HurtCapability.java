@@ -20,11 +20,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.UUID;
+import java.util.Set;
 
 public class HurtCapability implements ICapabilitySerializable<CompoundNBT>, Capability.IStorage<HurtCapability> {
 
     public Map<String, HurtSourceData> hurtMap = new HashMap<>();
+    public Set<UUID> lastMeleeUUID = new HashSet<>(5, 15);
     public int ticksSinceLastMelee;
     public int ticksToArmorDamage;
     public int ticksToShieldDamage;
