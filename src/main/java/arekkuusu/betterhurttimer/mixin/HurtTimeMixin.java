@@ -48,7 +48,7 @@ public abstract class HurtTimeMixin extends Entity {
 
     @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;playHurtSound(Lnet/minecraft/util/DamageSource;)V"))
     public void playHurtSound(LivingEntity that, DamageSource source) {
-        if (this.preHurtTime > this.maxHurtTime) {
+        if (this.preHurtTime == 0) {
             this.playHurtSound(source);
         }
     }
@@ -65,7 +65,7 @@ public abstract class HurtTimeMixin extends Entity {
 
     @Inject(method = "playHurtSound(Lnet/minecraft/util/DamageSource;)V", at = @At("HEAD"), cancellable = true)
     public void playHurtSound(DamageSource source, CallbackInfo info) {
-        if (this.preHurtTime < this.maxHurtTime) {
+        if (this.preHurtTime > 0) {
             info.cancel();
         }
     }
