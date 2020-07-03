@@ -7,7 +7,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -15,8 +15,8 @@ public final class BHTAPI {
 
     public static final Function<EntityLivingBase, Function<String, HurtSourceInfo>> HURT_SOURCE_INFO_FUNCTION = e -> s -> new HurtSourceInfo(s, false, e.maxHurtResistantTime);
     public static final Function<HurtSourceInfo, Function<String, HurtSourceData>> HURT_SOURCE_DATA_FUNCTION = i -> s -> new HurtSourceData(i);
-    public static final Map<ResourceLocation, Double> ATTACK_THRESHOLD_MAP = new HashMap<>();
-    public static final Map<String, HurtSourceInfo> DAMAGE_SOURCE_INFO_MAP = new HashMap<>();
+    public static final Map<ResourceLocation, Double> ATTACK_THRESHOLD_MAP = new LinkedHashMap<>();
+    public static final Map<String, HurtSourceInfo> DAMAGE_SOURCE_INFO_MAP = new LinkedHashMap<>();
 
     public static void addSource(HurtSourceInfo info) {
         BHTAPI.DAMAGE_SOURCE_INFO_MAP.put(info.sourceName, info);

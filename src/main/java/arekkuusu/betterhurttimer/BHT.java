@@ -3,6 +3,7 @@ package arekkuusu.betterhurttimer;
 import arekkuusu.betterhurttimer.api.BHTAPI;
 import arekkuusu.betterhurttimer.api.capability.HurtCapability;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo;
+import arekkuusu.betterhurttimer.common.command.CommandExport;
 import arekkuusu.betterhurttimer.common.proxy.IProxy;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
@@ -11,6 +12,7 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -82,6 +84,11 @@ public class BHT {
                 BHT.LOG.warn("[Damage Frames Config] - String " + s + " is not a valid format");
             }
         }
+    }
+
+    @EventHandler
+    public void onServerLoad(FMLServerStartingEvent event) {
+        event.registerServerCommand(new CommandExport());
     }
 
     @EventHandler
