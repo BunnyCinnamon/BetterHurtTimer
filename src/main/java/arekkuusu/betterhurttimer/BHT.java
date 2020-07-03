@@ -6,14 +6,18 @@ import arekkuusu.betterhurttimer.api.capability.HurtCapability;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo;
 import arekkuusu.betterhurttimer.client.ClientProxy;
 import arekkuusu.betterhurttimer.common.ServerProxy;
+import arekkuusu.betterhurttimer.common.command.CommandExport;
 import arekkuusu.betterhurttimer.common.proxy.IProxy;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLFingerprintViolationEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +45,8 @@ public final class BHT {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, BHTConfig.Holder.COMMON_SPEC);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
+        MinecraftForge.EVENT_BUS.addListener(this::setupServer);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onFingerprintViolation);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onModConfigEvent);
     }
 
@@ -50,6 +56,14 @@ public final class BHT {
 
     public void setupClient(final FMLClientSetupEvent event) {
         HealthCapability.init();
+    }
+
+    public void setupServer(final FMLServerStartingEvent event) {
+        CommandExport.register(event.getCommandDispatcher());
+    }
+
+    public void onFingerprintViolation(final FMLFingerprintViolationEvent event) {
+        LOG.warn("Invalid fingerprint detected!");
     }
 
     public void onModConfigEvent(ModConfig.ModConfigEvent event) {
@@ -92,9 +106,4 @@ public final class BHT {
             }
         }
     }
-
-    /*@EventHandler
-    public void onFingerprintViolation(FMLFingerprintViolationEvent event) {
-        LOG.warn("Invalid fingerprint detected!");
-    }*/
 }
