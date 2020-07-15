@@ -1,7 +1,10 @@
 package arekkuusu.betterhurttimer.api.capability;
 
 import arekkuusu.betterhurttimer.BHT;
+import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTBase;
@@ -18,18 +21,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Set;
+import java.util.WeakHashMap;
 
 @SuppressWarnings("ConstantConditions")
 public class HurtCapability implements ICapabilitySerializable<NBTTagCompound>, Capability.IStorage<HurtCapability> {
 
-    public Map<String, HurtSourceData> hurtMap = new HashMap<>();
-    public Set<UUID> lastMeleeUUID = new HashSet<>(5, 15);
-    public int ticksSinceLastMelee;
+    public Object2ObjectMap<CharSequence, HurtSourceData> hurtMap = new Object2ObjectArrayMap<>();
+    public WeakHashMap<Entity, AttackInfo> meleeMap = new WeakHashMap<>();
     public int ticksToArmorDamage;
     public int ticksToShieldDamage;
     public double lastArmorDamage;
@@ -62,21 +60,25 @@ public class HurtCapability implements ICapabilitySerializable<NBTTagCompound>, 
     }
 
     //** NBT **//
-    public static final String LAST_MELEE_TIMER_NBT = "ticksSinceLastMelee";
+    public static final String LAST_ARMOR_TIMER_NBT = "ticksToArmorDamage";
+    public static final String LAST_SHIELD_TIMER_NBT = "ticksToShieldDamage";
 
     @Override
     @Nullable
     public NBTBase writeNBT(Capability<HurtCapability> capability, HurtCapability instance, EnumFacing side) {
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger(LAST_MELEE_TIMER_NBT, instance.ticksSinceLastMelee);
+        tag.setInteger(LAST_ARMOR_TIMER_NBT, instance.ticksToArmorDamage);
+        tag.setInteger(LAST_SHIELD_TIMER_NBT, instance.ticksToShieldDamage);
         return tag;
     }
 
     @Override
     public void readNBT(Capability<HurtCapability> capability, HurtCapability instance, EnumFacing side, NBTBase nbt) {
         NBTTagCompound tag = (NBTTagCompound) nbt;
-        instance.ticksSinceLastMelee = tag.getInteger(LAST_MELEE_TIMER_NBT);
+        instance.ticksToArmorDamage = tag.getInteger(LAST_ARMOR_TIMER_NBT);
+        instance.ticksToShieldDamage = tag.getInteger(LAST_SHIELD_TIMER_NBT);
     }
+    //** NBT **//
 
     public static class Handler {
         private static final ResourceLocation KEY = new ResourceLocation(BHT.MOD_ID, "HURT");

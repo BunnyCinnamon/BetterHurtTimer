@@ -71,7 +71,7 @@ public class CommandExport extends CommandBase {
                 FileWriter export = new FileWriter(exportFile);
                 switch (args[0]) {
                     case "damageFrames":
-                        for (Map.Entry<String, HurtSourceInfo> entry : BHTAPI.DAMAGE_SOURCE_INFO_MAP.entrySet()) {
+                        for (Map.Entry<CharSequence, HurtSourceInfo> entry : BHTAPI.DAMAGE_SOURCE_INFO_MAP.entrySet()) {
                             HurtSourceInfo hurtSourceInfo = entry.getValue();
                             export.write(hurtSourceInfo.sourceName + ":" + hurtSourceInfo.waitTime + ":" + hurtSourceInfo.doFrames + "\n");
                         }
