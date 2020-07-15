@@ -43,12 +43,13 @@ public final class BHTConfig {
                     .defineInRange("shieldResistantTime", 5, 0, Integer.MAX_VALUE);
             damageSource = builder
                     .comment("Damage sources that need a specific iFrame." +
-                            "\n\nFormat: [*Damage Source name]:[*Should damage stack between iFrames]:[*iFrame time]" +
+                            "\n\nFormat: [*Damage Source name (Regex)]:[*Should damage stack between iFrames]:[*iFrame time]" +
                             "\n* Damage Source name -> Used to identify the type of damage you're receiving." +
                             "\n* Should damage stack between iFrames -> 'true' or 'false', when set to 'true' damage will always stack regardless of the iFrame, but it will only apply the damage every iFrame." +
                             "\n* iFrame time -> How often you can receive damage from this damage source." +
                             "\n\n\nExamples:" +
                             "\n- inFire:false:10 -> Source 'inFire' does not stack and only allows hits every 10 game ticks." +
+                            "\n- inFire|lava:false:10 -> Sources 'inFire' or 'lava' do not stack and only allows hits every 10 game ticks (lava and fire will share the same iFrame)." +
                             "\n- arrow:true:10 - > Source 'arrow' does stack and hits the accumulated damage every 10 game ticks." +
                             "\n\n# If the next attack deals more than the previous the difference is applied" +
                             "\n")
