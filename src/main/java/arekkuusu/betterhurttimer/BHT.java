@@ -31,7 +31,7 @@ public class BHT {
     //Useful names
     public static final String MOD_ID = "betterhurttimer";
     public static final String MOD_NAME = "Better Hurt Timer";
-    public static final String MOD_VERSION = "1.12.2-1.0.0.0";
+    public static final String MOD_VERSION = "1.12.2-1.3.0.0";
     public static final String SERVER_PROXY = "arekkuusu." + MOD_ID + ".common.ServerProxy";
     public static final String CLIENT_PROXY = "arekkuusu." + MOD_ID + ".client.ClientProxy";
 
