@@ -4,6 +4,7 @@ import arekkuusu.betterhurttimer.BHT;
 import arekkuusu.betterhurttimer.BHTConfig;
 import arekkuusu.betterhurttimer.api.BHTAPI;
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
+import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
 import arekkuusu.betterhurttimer.api.event.PreLivingAttackEvent;
 import arekkuusu.betterhurttimer.api.event.PreLivingKnockBackEvent;
@@ -22,6 +23,8 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.function.Function;
+
 @Mod.EventBusSubscriber(modid = BHT.MOD_ID)
 public class Events {
 
@@ -33,19 +36,23 @@ public class Events {
         if (isClientWorld(event.getEntity())) return;
         Capabilities.hurt(event.getEntity()).ifPresent(capability -> {
             //Source Damage i-Frames
-            capability.hurtMap.forEach((s, data) -> {
-                ++data.lastHurtTick;
-                if (data.tick > 0) {
-                    --data.tick;
-                }
-                if (data.info.doFrames && data.tick == 0 && !data.canApply) {
-                    Events.onAttackEntityOverride = false;
-                    data.apply(event.getEntity());
-                    Events.onAttackEntityOverride = true;
-                }
-            });
+            if (!capability.hurtMap.isEmpty()) {
+                capability.hurtMap.forEach((s, data) -> {
+                    ++data.lastHurtTick;
+                    if (data.tick > 0) {
+                        --data.tick;
+                    }
+                    if (data.info.doFrames && data.tick == 0 && !data.canApply) {
+                        Events.onAttackEntityOverride = false;
+                        data.apply(event.getEntity());
+                        Events.onAttackEntityOverride = true;
+                    }
+                });
+            }
             //Melee i-Frames
-            ++capability.ticksSinceLastMelee;
+            if (!capability.meleeMap.isEmpty()) {
+                capability.meleeMap.forEach((e, a) -> a.ticksSinceLastMelee++);
+            }
             //Armor i-Frames
             if (capability.ticksToArmorDamage > 0) {
                 --capability.ticksToArmorDamage;
@@ -100,6 +107,8 @@ public class Events {
         data.lastHurtTick = 0;
     }
 
+    public static final Function<Entity, AttackInfo> INFO_FUNCTION = u -> new AttackInfo(42);
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onEntityAttack(LivingAttackEvent event) {
         if (isClientWorld(event.getEntity())) return;
@@ -114,10 +123,12 @@ public class Events {
             double threshold = Events.getThreshold(attacker);
             //Calculate last hurt time required
             int ticksSinceLastHurt = (int) ((float) maxHurtResistantTime * (attackerAttackSpeed * threshold));
-            if (capability.ticksSinceLastMelee < ticksSinceLastHurt && !(capability.ticksSinceLastMelee == 0 && capability.lastMeleeUUID.add(target.getUniqueID()))) {
+            final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, INFO_FUNCTION);
+            int ticksSinceLastMelee = attackInfo.ticksSinceLastMelee;
+            if (ticksSinceLastMelee < ticksSinceLastHurt) {
                 event.setCanceled(true);
             } else {
-                capability.ticksSinceLastMelee = 0;
+                attackInfo.ticksSinceLastMelee = 0;
             }
         });
     }
@@ -137,7 +148,7 @@ public class Events {
         if (attribute != null) {
             attackSpeed = attribute.getValue();
         }
-        return 1.2D - (1.2D / (1.2D / attackSpeed * 20D));
+        return 1.2D - (1.2D / (1.2D / (attackSpeed * 1.2) * 20D));
     }
 
     public static double getThreshold(Entity entity) {
