@@ -60,7 +60,7 @@ public final class BHT {
     }
 
     public void setupServer(final FMLServerStartingEvent event) {
-        CommandExport.register(event.getCommandDispatcher());
+        CommandExport.register(event.getServer().getCommandManager().getDispatcher());
     }
 
     public void onFingerprintViolation(final FMLFingerprintViolationEvent event) {
