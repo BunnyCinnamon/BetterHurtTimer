@@ -10,6 +10,7 @@ import arekkuusu.betterhurttimer.common.command.CommandExport;
 import arekkuusu.betterhurttimer.common.proxy.IProxy;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -59,7 +60,7 @@ public final class BHT {
     }
 
     public void setupServer(final FMLServerStartingEvent event) {
-        CommandExport.register(event.getCommandDispatcher());
+        CommandExport.register(event.getServer().getCommandManager().getDispatcher());
     }
 
     public void onFingerprintViolation(final FMLFingerprintViolationEvent event) {
