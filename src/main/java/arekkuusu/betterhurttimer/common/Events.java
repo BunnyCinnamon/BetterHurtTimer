@@ -3,8 +3,8 @@ package arekkuusu.betterhurttimer.common;
 import arekkuusu.betterhurttimer.BHT;
 import arekkuusu.betterhurttimer.BHTConfig;
 import arekkuusu.betterhurttimer.api.BHTAPI;
-import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
+import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
 import arekkuusu.betterhurttimer.api.event.PreLivingAttackEvent;
 import arekkuusu.betterhurttimer.api.event.PreLivingKnockBackEvent;
@@ -23,7 +23,6 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.function.Function;
 
 @Mod.EventBusSubscriber(modid = BHT.MOD_ID)
@@ -125,7 +124,12 @@ public class Events {
             final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, INFO_FUNCTION);
             int ticksSinceLastMelee = attackInfo.ticksSinceLastMelee;
             if (ticksSinceLastMelee < ticksSinceLastHurt) {
-                event.setCanceled(true);
+                // What needs to be done to fix other peoples shit.
+                if (attackInfo.ticksSinceLastMelee == 0 && attacker instanceof EntityPlayer && ((EntityPlayer) attacker).getCooledAttackStrength(0) == 0) {
+                    attackInfo.override = true;
+                } else {
+                    event.setCanceled(true);
+                }
             } else {
                 attackInfo.ticksSinceLastMelee = 0;
             }
