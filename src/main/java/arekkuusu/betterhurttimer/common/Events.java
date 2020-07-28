@@ -126,7 +126,12 @@ public class Events {
             final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, INFO_FUNCTION);
             int ticksSinceLastMelee = attackInfo.ticksSinceLastMelee;
             if (ticksSinceLastMelee < ticksSinceLastHurt) {
-                event.setCanceled(true);
+                // What needs to be done to fix other peoples shit.
+                if (attackInfo.ticksSinceLastMelee == 0 && attacker instanceof PlayerEntity && ((PlayerEntity) attacker).getCooledAttackStrength(0) == 0) {
+                    attackInfo.override = true;
+                } else {
+                    event.setCanceled(true);
+                }
             } else {
                 attackInfo.ticksSinceLastMelee = 0;
             }
