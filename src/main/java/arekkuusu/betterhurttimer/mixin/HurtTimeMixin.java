@@ -1,11 +1,16 @@
 package arekkuusu.betterhurttimer.mixin;
 
 import arekkuusu.betterhurttimer.BHTConfig;
+import arekkuusu.betterhurttimer.api.capability.Capabilities;
+import arekkuusu.betterhurttimer.api.capability.HurtCapability;
+import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
+import arekkuusu.betterhurttimer.common.Events;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.LazyOptional;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -39,6 +44,23 @@ public abstract class HurtTimeMixin extends Entity {
         } else {
             this.preAttackedAtYaw = 0;
         }
+    }
+
+    @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;hurtResistantTime:I", ordinal = 0))
+    public int attackResistantOverride(LivingEntity target, DamageSource source) {
+        if(Events.isAttack(source)) {
+            Entity attacker = source.getTrueSource();
+            LazyOptional<HurtCapability> optional = Capabilities.hurt(attacker);
+            if(optional.isPresent()) {
+                HurtCapability capability = optional.orElseThrow(UnsupportedOperationException::new);
+                final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, Events.INFO_FUNCTION);
+                if(attackInfo.override) {
+                    attackInfo.override = false;
+                    return target.maxHurtResistantTime;
+                }
+            }
+        }
+        return target.hurtResistantTime;
     }
 
     @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;hurtTime:I", shift = At.Shift.AFTER))
