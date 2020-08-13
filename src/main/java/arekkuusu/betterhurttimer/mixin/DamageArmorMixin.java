@@ -15,7 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(EntityLivingBase.class)
 public abstract class DamageArmorMixin {
 
-    @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraft/entity/EntityLivingBase;damageShield(F)V", value = "INVOKE"))
+    //Forge Compliant
+    @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraft/entity/EntityLivingBase;damageShield(F)V", value = "INVOKE"), require = 0)
     public void damageShield(EntityLivingBase entity, float damage) {
         HurtCapability capability = Capabilities.hurt(entity).orElse(null);
         if (capability != null) {
@@ -34,7 +35,7 @@ public abstract class DamageArmorMixin {
         }
     }
 
-    @Redirect(method = "applyArmorCalculations(Lnet/minecraft/util/DamageSource;F)F", at = @At(target = "Lnet/minecraft/entity/EntityLivingBase;damageArmor(F)V", value = "INVOKE"))
+    @Redirect(method = "applyArmorCalculations(Lnet/minecraft/util/DamageSource;F)F", at = @At(target = "Lnet/minecraft/entity/EntityLivingBase;damageArmor(F)V", value = "INVOKE"), require = 0)
     public void damageArmor(EntityLivingBase entity, float damage) {
         HurtCapability capability = Capabilities.hurt(entity).orElse(null);
         if (capability != null) {
@@ -46,22 +47,53 @@ public abstract class DamageArmorMixin {
             } else {
                 damageArmor(damage);
                 capability.lastArmorDamage = damage;
+                capability.ticksToArmorDamage = BHTConfig.CONFIG.damageFrames.armorResistantTime;
             }
         } else {
             damageArmor(damage);
         }
     }
+    //Forge Compliant
 
-    @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At("TAIL"))
-    public void attackEntityFromAfter(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
-        Object entity = this;
-        //noinspection ConstantConditions
-        EntityLivingBase livingBase = (EntityLivingBase) entity;
-        Capabilities.hurt(livingBase).ifPresent(capability -> {
-            if (capability.ticksToArmorDamage == 0)
-                capability.ticksToArmorDamage = BHTConfig.CONFIG.damageFrames.armorResistantTime;
-        });
+    //Spigot Compliant
+    @Redirect(method = "damageEntity_CB(Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraft/entity/EntityLivingBase;damageShield(F)V", value = "INVOKE"), require = 0)
+    public void damageShieldS(EntityLivingBase entity, float damage) {
+        HurtCapability capability = Capabilities.hurt(entity).orElse(null);
+        if (capability != null) {
+            if (capability.ticksToShieldDamage > 0) {
+                if (Double.compare(Math.max(0, capability.lastShieldDamage + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference), damage) < 0) {
+                    damageShield((float) (damage - capability.lastShieldDamage));
+                    capability.lastShieldDamage = damage;
+                }
+            } else {
+                damageShield(damage);
+                capability.lastShieldDamage = damage;
+                capability.ticksToShieldDamage = BHTConfig.CONFIG.damageFrames.shieldResistantTime;
+            }
+        } else {
+            damageShield(damage);
+        }
     }
+
+    @Redirect(method = "damageEntity_CB(Lnet/minecraft/util/DamageSource;F)F", at = @At(target = "Lnet/minecraft/entity/EntityLivingBase;damageArmor(F)V", value = "INVOKE"), require = 0)
+    public void damageArmorS(EntityLivingBase entity, float damage) {
+        HurtCapability capability = Capabilities.hurt(entity).orElse(null);
+        if (capability != null) {
+            if (capability.ticksToArmorDamage > 0) {
+                if (Double.compare(Math.max(0, capability.lastArmorDamage + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference), damage) < 0) {
+                    damageArmor((float) (damage - capability.lastArmorDamage));
+                    capability.lastArmorDamage = damage;
+                }
+            } else {
+                damageArmor(damage);
+                capability.lastArmorDamage = damage;
+                capability.ticksToArmorDamage = BHTConfig.CONFIG.damageFrames.armorResistantTime;
+            }
+        } else {
+            damageArmor(damage);
+        }
+    }
+    //Spigot Compliant
 
     @Shadow
     protected abstract void damageArmor(float damage);

@@ -24,7 +24,6 @@ import java.util.Optional;
 public abstract class HurtTimeMixin extends Entity {
 
     @Shadow public int hurtTime;
-    @Shadow public int maxHurtTime;
     @Shadow public float attackedAtYaw;
     public float preAttackedAtYaw;
     public int preHurtTime;
