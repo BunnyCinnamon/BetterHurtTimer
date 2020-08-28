@@ -1,6 +1,7 @@
 package arekkuusu.betterhurttimer.mixin;
 
 import arekkuusu.betterhurttimer.BHTConfig;
+import arekkuusu.betterhurttimer.client.ClientProxy;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,7 +14,7 @@ public class HurtCameraEffectMixin {
 
     @Inject(method = "hurtCameraEffect", at = @At(target = "Lnet/minecraft/entity/LivingEntity;hurtTime:I", value = "FIELD", ordinal = 0), cancellable = true)
     private void hurtCameraEffect(MatrixStack matrixStackIn, float partialTicks, CallbackInfo info) {
-        if (!BHTConfig.Runtime.Rendering.doHurtCameraEffect) {
+        if (!BHTConfig.Runtime.Rendering.doHurtCameraEffect || (ClientProxy.preHurtRender > 0)) {
             info.cancel();
         }
     }
