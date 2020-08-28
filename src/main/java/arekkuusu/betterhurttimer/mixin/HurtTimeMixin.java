@@ -1,5 +1,6 @@
 package arekkuusu.betterhurttimer.mixin;
 
+import arekkuusu.betterhurttimer.BHT;
 import arekkuusu.betterhurttimer.BHTConfig;
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
 import arekkuusu.betterhurttimer.api.capability.HurtCapability;
@@ -13,18 +14,17 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Optional;
-
 @Mixin(EntityLivingBase.class)
 public abstract class HurtTimeMixin extends Entity {
 
-    @Shadow public int hurtTime;
-    @Shadow public float attackedAtYaw;
+    @Shadow
+    public int hurtTime;
+    @Shadow
+    public float attackedAtYaw;
     public float preAttackedAtYaw;
     public int preHurtTime;
 
@@ -44,16 +44,18 @@ public abstract class HurtTimeMixin extends Entity {
         } else {
             this.preAttackedAtYaw = 0;
         }
+        //noinspection ConstantConditions
+        BHT.getProxy().setPreHurtTime((EntityLivingBase) ((Object) this));
     }
 
     @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;hurtResistantTime:I", ordinal = 0))
     public int attackResistantOverride(EntityLivingBase target, DamageSource source) {
-        if(Events.isAttack(source)) {
+        if (Events.isAttack(source)) {
             Entity attacker = source.getTrueSource();
             HurtCapability capability = Capabilities.hurt(attacker).orElse(null);
-            if(capability != null) {
+            if (capability != null) {
                 final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, Events.INFO_FUNCTION);
-                if(attackInfo.override) {
+                if (attackInfo.override) {
                     attackInfo.override = false;
                     return target.maxHurtResistantTime;
                 }
@@ -65,6 +67,15 @@ public abstract class HurtTimeMixin extends Entity {
     @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;hurtTime:I", shift = At.Shift.AFTER))
     public void hurtResistantTime(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
         this.hurtResistantTime = BHTConfig.CONFIG.damageFrames.hurtResistantTime;
+    }
+
+    @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setEntityState(Lnet/minecraft/entity/Entity;B)V", ordinal = 2))
+    public void turnOffSound(World world, Entity entity, byte b) {
+        if (b == 2 || b == 33 || b == 36 || b == 37) {
+            if (this.preHurtTime == 0) {
+                world.setEntityState(entity, b);
+            }
+        }
     }
 
     @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/EntityLivingBase;playHurtSound(Lnet/minecraft/util/DamageSource;)V"))
