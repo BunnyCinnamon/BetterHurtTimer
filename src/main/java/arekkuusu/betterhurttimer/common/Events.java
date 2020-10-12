@@ -76,7 +76,6 @@ public class Events {
         if (!Events.onAttackEntityOverride) return;
         DamageSource source = event.getSource();
         if (Events.isAttack(source)) return; //If my source is melee, return
-        event.getEntityLiving().sendMessage(new TextComponentString("BHT: is attack?" + Events.isAttack(source)));
 
         EntityLivingBase entity = event.getEntityLiving();
         HurtSourceData data = BHTAPI.get(entity, source);
