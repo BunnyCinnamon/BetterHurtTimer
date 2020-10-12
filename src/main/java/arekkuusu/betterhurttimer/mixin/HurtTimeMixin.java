@@ -29,6 +29,7 @@ public abstract class HurtTimeMixin extends Entity {
     public float attackedAtYaw;
     public float preAttackedAtYaw;
     public int preHurtTime;
+    public DamageSource preDamageSource;
 
     public HurtTimeMixin(EntityType<?> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
@@ -48,12 +49,13 @@ public abstract class HurtTimeMixin extends Entity {
         }
         //noinspection ConstantConditions
         BHT.getProxy().setPreHurtTime((LivingEntity) ((Object) this));
+        this.preDamageSource = source;
     }
 
     @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;hurtResistantTime:I", ordinal = 0))
     public int attackResistantOverride(LivingEntity target, DamageSource source) {
-        if (Events.isAttack(source)) {
-            Entity attacker = source.getTrueSource();
+        if (Events.isAttack(this.preDamageSource)) {
+            Entity attacker = this.preDamageSource.getTrueSource();
             LazyOptional<HurtCapability> optional = Capabilities.hurt(attacker);
             if (optional.isPresent()) {
                 HurtCapability capability = optional.orElseThrow(UnsupportedOperationException::new);

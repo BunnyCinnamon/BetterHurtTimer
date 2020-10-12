@@ -109,7 +109,7 @@ public class Events {
 
     public static final Function<Entity, AttackInfo> INFO_FUNCTION = u -> new AttackInfo(42);
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onEntityAttack(LivingAttackEvent event) {
         if (isClientWorld(event.getEntity())) return;
         DamageSource source = event.getSource();
@@ -127,7 +127,7 @@ public class Events {
             int ticksSinceLastMelee = attackInfo.ticksSinceLastMelee;
             if (ticksSinceLastMelee < ticksSinceLastHurt) {
                 // What needs to be done to fix other peoples shit.
-                if (attackInfo.ticksSinceLastMelee == 0 && attacker instanceof PlayerEntity && ((PlayerEntity) attacker).getCooledAttackStrength(0) == 0) {
+                if (attackInfo.ticksSinceLastMelee == 0 && (!(attacker instanceof PlayerEntity) || ((PlayerEntity) attacker).getCooledAttackStrength(0) == 0)) {
                     attackInfo.override = true;
                 } else {
                     event.setCanceled(true);
