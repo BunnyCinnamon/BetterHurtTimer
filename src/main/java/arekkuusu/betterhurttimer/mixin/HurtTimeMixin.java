@@ -27,6 +27,7 @@ public abstract class HurtTimeMixin extends Entity {
     public float attackedAtYaw;
     public float preAttackedAtYaw;
     public int preHurtTime;
+    public DamageSource preDamageSource;
 
     public HurtTimeMixin(World p_i1582_1_) {
         super(p_i1582_1_);
@@ -46,12 +47,13 @@ public abstract class HurtTimeMixin extends Entity {
         }
         //noinspection ConstantConditions
         BHT.getProxy().setPreHurtTime((EntityLivingBase) ((Object) this));
+        this.preDamageSource = source;
     }
 
     @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;hurtResistantTime:I", ordinal = 0))
-    public int attackResistantOverride(EntityLivingBase target, DamageSource source) {
-        if (Events.isAttack(source)) {
-            Entity attacker = source.getTrueSource();
+    public int attackResistantOverride(EntityLivingBase target) {
+        if (Events.isAttack(this.preDamageSource)) {
+            Entity attacker = this.preDamageSource.getTrueSource();
             HurtCapability capability = Capabilities.hurt(attacker).orElse(null);
             if (capability != null) {
                 final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, Events.INFO_FUNCTION);

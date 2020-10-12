@@ -16,11 +16,13 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.apache.logging.log4j.Level;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -74,6 +76,7 @@ public class Events {
         if (!Events.onAttackEntityOverride) return;
         DamageSource source = event.getSource();
         if (Events.isAttack(source)) return; //If my source is melee, return
+        event.getEntityLiving().sendMessage(new TextComponentString("BHT: is attack?" + Events.isAttack(source)));
 
         EntityLivingBase entity = event.getEntityLiving();
         HurtSourceData data = BHTAPI.get(entity, source);
@@ -107,7 +110,7 @@ public class Events {
 
     public static final Function<Entity, AttackInfo> INFO_FUNCTION = u -> new AttackInfo(42);
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onEntityAttack(LivingAttackEvent event) {
         if (isClientWorld(event.getEntity())) return;
         DamageSource source = event.getSource();
@@ -125,7 +128,7 @@ public class Events {
             int ticksSinceLastMelee = attackInfo.ticksSinceLastMelee;
             if (ticksSinceLastMelee < ticksSinceLastHurt) {
                 // What needs to be done to fix other peoples shit.
-                if (attackInfo.ticksSinceLastMelee == 0 && attacker instanceof EntityPlayer && ((EntityPlayer) attacker).getCooledAttackStrength(0) == 0) {
+                if (attackInfo.ticksSinceLastMelee == 0 && (!(attacker instanceof EntityPlayer) || ((EntityPlayer) attacker).getCooledAttackStrength(0) == 0)) {
                     attackInfo.override = true;
                 } else {
                     event.setCanceled(true);
