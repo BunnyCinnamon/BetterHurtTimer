@@ -55,7 +55,7 @@ public abstract class DamageArmorMixin {
     }
     //Forge Compliant
 
-    //Spigot Compliant
+    //Bukkit Compliant
     @Redirect(method = "damageEntity_CB(Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraft/entity/EntityLivingBase;damageShield(F)V", value = "INVOKE"), require = 0)
     public void damageShieldS(EntityLivingBase entity, float damage) {
         HurtCapability capability = Capabilities.hurt(entity).orElse(null);
@@ -93,7 +93,7 @@ public abstract class DamageArmorMixin {
             damageArmor(damage);
         }
     }
-    //Spigot Compliant
+    //Bukkit Compliant
 
     @Shadow
     protected abstract void damageArmor(float damage);
