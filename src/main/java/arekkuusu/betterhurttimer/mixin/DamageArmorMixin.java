@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(EntityLivingBase.class)
 public abstract class DamageArmorMixin {
 
-    /*//Forge Compliant
+    //Forge Compliant
     @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraft/entity/EntityLivingBase;damageShield(F)V", value = "INVOKE"), require = 0)
     public void damageShield(EntityLivingBase entity, float damage) {
         HurtCapability capability = Capabilities.hurt(entity).orElse(null);
@@ -53,7 +53,7 @@ public abstract class DamageArmorMixin {
             damageArmor(damage);
         }
     }
-    //Forge Compliant*/
+    //Forge Compliant
 
     //Spigot Compliant
     @Redirect(method = "damageEntity_CB(Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraft/entity/EntityLivingBase;damageShield(F)V", value = "INVOKE"), require = 0)
