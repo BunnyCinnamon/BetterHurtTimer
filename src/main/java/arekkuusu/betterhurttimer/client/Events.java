@@ -25,23 +25,6 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = BHT.MOD_ID, value = Dist.CLIENT)
 public class Events {
 
-    /*@SubscribeEvent
-    public static void renderAfterWorld(RenderWorldLastEvent event) {
-        IRenderTypeBuffer.Impl bufferIn = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
-        MatrixStack stack = event.getMatrixStack();
-        stack.push();
-        stack.translate(0.0D, 0.0D, 0.0D);
-        stack.rotate(Minecraft.getInstance().getRenderManager().getCameraOrientation());
-        stack.scale(-0.025F, -0.025F, 0.025F);
-        Matrix4f matrix4f = stack.getLast().getMatrix();
-        FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
-        float f1 = Minecraft.getInstance().gameSettings.getTextBackgroundOpacity(0.25F);
-        int j = (int)(f1 * 255.0F) << 24;
-        float f2 = (float)(-fontRenderer.func_238414_a_(new TranslationTextComponent("10")) / 2);
-        fontRenderer.func_238416_a_(new TranslationTextComponent("10"), f2, 0, 553648127, false, matrix4f, bufferIn, true, j, 255);
-        stack.pop();
-    }*/
-
     @SubscribeEvent
     public static void displayDamage(LivingEvent.LivingUpdateEvent event) {
         LivingEntity entity = event.getEntityLiving();

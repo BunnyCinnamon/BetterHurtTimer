@@ -56,7 +56,7 @@ public abstract class DamageArmorMixin {
     }
     //Forge Compliant
 
-    //Spigot Compliant
+    //Bukkit Compliant
     @Redirect(method = "damageEntity_CB(Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraft/entity/LivingEntity;damageShield(F)V", value = "INVOKE"), require = 0)
     public void damageShieldS(LivingEntity entity, float damage) {
         LazyOptional<HurtCapability> optional = Capabilities.hurt(entity);
@@ -96,7 +96,7 @@ public abstract class DamageArmorMixin {
             func_230294_b_(source, damage);
         }
     }
-    //Spigot Compliant
+    //Bukkit Compliant
 
     @Shadow
     protected abstract void func_230294_b_(DamageSource p_230294_1_, float p_230294_2_);
