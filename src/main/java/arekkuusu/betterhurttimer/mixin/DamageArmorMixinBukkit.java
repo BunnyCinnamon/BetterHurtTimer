@@ -14,10 +14,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
-public abstract class DamageArmorMixin {
+public abstract class DamageArmorMixinBukkit {
 
-    //Forge Compliant
-    @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraft/entity/LivingEntity;damageShield(F)V", value = "INVOKE"), require = 0)
+    //Bukkit Compliant
+    @Redirect(method = "damageEntity_CB(Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraft/entity/LivingEntity;damageShield(F)V", value = "INVOKE"), require = 0)
     public void damageShield(LivingEntity entity, float damage) {
         LazyOptional<HurtCapability> optional = Capabilities.hurt(entity);
         if (optional.isPresent()) {
@@ -37,7 +37,7 @@ public abstract class DamageArmorMixin {
         }
     }
 
-    @Redirect(method = "applyArmorCalculations(Lnet/minecraft/util/DamageSource;F)F", at = @At(target = "Lnet/minecraft/entity/LivingEntity;damageArmor(F)V", value = "INVOKE"), require = 0)
+    @Redirect(method = "damageEntity_CB(Lnet/minecraft/util/DamageSource;F)F", at = @At(target = "Lnet/minecraft/entity/LivingEntity;damageArmor(F)V", value = "INVOKE"), require = 0)
     public void damageArmor(LivingEntity entity, float damage) {
         LazyOptional<HurtCapability> optional = Capabilities.hurt(entity);
         if (optional.isPresent()) {
@@ -56,7 +56,7 @@ public abstract class DamageArmorMixin {
             damageArmor(damage);
         }
     }
-    //Forge Compliant
+    //Bukkit Compliant
 
     @Shadow
     protected abstract void damageArmor(float damage);
