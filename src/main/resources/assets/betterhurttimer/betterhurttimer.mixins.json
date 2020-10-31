@@ -14,9 +14,12 @@
     "HurtTimeMixin",
     "KnockbackMixin",
     "DamageArmorMixin",
-    "DamageSpecialArmorMixin"
+    "DamageSpecialArmorMixin",
+    "DamageArmorMixinBukkit",
+    "DamageArmorMixinOverride"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "plugin": "arekkuusu.betterhurttimer.common.core.Plugin"
 }
