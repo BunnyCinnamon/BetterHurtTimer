@@ -14,6 +14,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
@@ -157,6 +158,12 @@ public class Events {
     }
 
     public static double getThreshold(Entity entity) {
+        if(entity instanceof EntityLivingBase) {
+            ResourceLocation itemLocation = ((EntityLivingBase) entity).getHeldItemMainhand().getItem().getRegistryName();
+            if(BHTAPI.ATTACK_ITEM_THRESHOLD_MAP.containsKey(itemLocation)) {
+                return BHTAPI.ATTACK_ITEM_THRESHOLD_MAP.get(itemLocation);
+            }
+        }
         ResourceLocation location = EntityList.getKey(entity.getClass());
         double threshold = BHTConfig.CONFIG.attackFrames.attackThresholdDefault;
         if (entity instanceof EntityPlayer)

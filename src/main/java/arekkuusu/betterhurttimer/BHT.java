@@ -71,6 +71,14 @@ public class BHT {
                 BHT.LOG.warn("[Attack Frames Config] - String " + s + " is not a valid format");
             }
         }
+        for (String s : BHTConfig.CONFIG.attackFrames.itemSource) {
+            Matcher m = r.matcher(s);
+            if (m.matches()) {
+                BHTAPI.addItem(new ResourceLocation(m.group(1)), Double.parseDouble(m.group(2)));
+            } else {
+                BHT.LOG.warn("[Attack Frames Config] - String " + s + " is not a valid format");
+            }
+        }
     }
 
     public void initDamageFrames() {

@@ -7,6 +7,7 @@ public class BHTConfig {
 
     @Config.Comment("Global Values")
     @Config.LangKey(BHT.MOD_ID + ".config.global")
+    @Config.RequiresMcRestart
     public static Values CONFIG = new Values();
 
     @Config.Comment("Client Values")
@@ -93,6 +94,18 @@ public class BHTConfig {
                     "minecraft:slime:1",
                     "tconstruct:blueslime:1",
                     "thaumcraft:thaumslime:1",
+            };
+            @Config.Comment("Items that need a specific attack reload speed. [Overwrites mob specific attack threshold]" +
+                    "\n\nFormat: [*mod:item)]:[*attack reload speed]" +
+                    "\n* Item Source name -> Used to identify the item used." +
+                    "\n* attack reload speed -> Attack reload speed before the attack is canceled." +
+                    "\n\n\nExamples:  (when attack threshold is 1)" +
+                    "\n- minecraft:iron_axe:2 -> Iron Axe can never attack." +
+                    "\n- minecraft:iron_axe:1 -> Iron Axe can only attack when fully up." +
+                    "\n- minecraft:iron_axe:0.5 -> Iron Axe can only attack when more than halfway up." +
+                    "\n- minecraft:iron_axe:0 -> Iron Axe can always attack." +
+                    "\n")
+            public String[] itemSource = {
             };
             @Config.Comment("Damage Sources from direct hits." +
                     "\n\nExample: Players and Mobs melee Damage Source.\n")
