@@ -1,10 +1,12 @@
 package arekkuusu.betterhurttimer.api;
 
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
+import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
@@ -20,6 +22,7 @@ public final class BHTAPI {
     public static final Object2ObjectMap<CharSequence, HurtSourceInfo> DAMAGE_SOURCE_INFO_MAP = new Object2ObjectArrayMap<>();
     public static final Map<ResourceLocation, Double> ATTACK_THRESHOLD_MAP = new LinkedHashMap<>();
     public static final Map<ResourceLocation, Double> ATTACK_ITEM_THRESHOLD_MAP = new LinkedHashMap<>();
+    public static final Function<Entity, AttackInfo> INFO_FUNCTION = u -> new AttackInfo();
 
     public static void addSource(HurtSourceInfo info) {
         BHTAPI.DAMAGE_SOURCE_INFO_MAP.put(new HurtSourceInfo.HurtType(info.sourceName), info);

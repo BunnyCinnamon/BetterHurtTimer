@@ -2,6 +2,7 @@ package arekkuusu.betterhurttimer.mixin;
 
 import arekkuusu.betterhurttimer.BHT;
 import arekkuusu.betterhurttimer.BHTConfig;
+import arekkuusu.betterhurttimer.api.BHTAPI;
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
 import arekkuusu.betterhurttimer.api.capability.HurtCapability;
 import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
@@ -56,7 +57,7 @@ public abstract class HurtTimeMixin extends Entity {
             Entity attacker = this.preDamageSource.getTrueSource();
             HurtCapability capability = Capabilities.hurt(attacker).orElse(null);
             if (capability != null) {
-                final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, Events.INFO_FUNCTION);
+                final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, BHTAPI.INFO_FUNCTION);
                 if (attackInfo.override) {
                     attackInfo.override = false;
                     return target.maxHurtResistantTime;

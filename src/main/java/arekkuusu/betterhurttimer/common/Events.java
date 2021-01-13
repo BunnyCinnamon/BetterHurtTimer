@@ -14,19 +14,20 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.apache.logging.log4j.Level;
 
 import java.util.Arrays;
-import java.util.function.Function;
 
 @Mod.EventBusSubscriber(modid = BHT.MOD_ID)
 public class Events {
@@ -108,7 +109,20 @@ public class Events {
         data.lastHurtTick = 0;
     }
 
-    public static final Function<Entity, AttackInfo> INFO_FUNCTION = u -> new AttackInfo(42);
+    @SubscribeEvent
+    public static void onPlayerAttack(AttackEntityEvent event) {
+        if (isClientWorld(event.getEntity())) return;
+        Capabilities.hurt(event.getEntityPlayer()).ifPresent(capability -> {
+            final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(event.getTarget(), BHTAPI.INFO_FUNCTION);
+            Entity target = event.getTarget();
+            Entity attacker = event.getEntityPlayer();
+            int ticksSinceLastHurt = Events.getHurtTime(target, attacker);
+            int ticksSinceLastMelee = event.getEntityPlayer().ticksSinceLastSwing;
+            if(ticksSinceLastMelee > ticksSinceLastHurt) {
+                attackInfo.ticksSinceLastMelee = ticksSinceLastMelee;
+            }
+        });
+    }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onEntityAttack(LivingAttackEvent event) {
@@ -119,12 +133,10 @@ public class Events {
         Entity target = event.getEntity();
         Entity attacker = source.getImmediateSource();
         Capabilities.hurt(attacker).ifPresent(capability -> {
-            double maxHurtResistantTime = Events.getHurtResistantTime(target);
-            double attackerAttackSpeed = Events.getAttackSpeed(attacker);
-            double threshold = Events.getThreshold(attacker);
+
             //Calculate last hurt time required
-            int ticksSinceLastHurt = (int) ((float) maxHurtResistantTime * (attackerAttackSpeed * threshold));
-            final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, INFO_FUNCTION);
+            final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, BHTAPI.INFO_FUNCTION);
+            int ticksSinceLastHurt = Events.getHurtTime(target, attacker);
             int ticksSinceLastMelee = attackInfo.ticksSinceLastMelee;
             if (ticksSinceLastMelee < ticksSinceLastHurt) {
                 // What needs to be done to fix other peoples shit.
@@ -137,6 +149,31 @@ public class Events {
                 attackInfo.ticksSinceLastMelee = 0;
             }
         });
+    }
+
+    public static int getHurtTime(Entity target, Entity attacker) {
+        double threshold = Events.getThreshold(attacker);
+
+        if (attacker instanceof EntityLivingBase && Events.canSwing((EntityLivingBase) attacker)) {
+            return (int) (Events.getCoolPeriod((EntityLivingBase) attacker) * threshold);
+        } else {
+            double maxHurtResistantTime = Events.getHurtResistantTime(target);
+            double attackerAttackSpeed = Events.getAttackSpeed(attacker);
+            return (int) (maxHurtResistantTime * (attackerAttackSpeed * threshold));
+        }
+    }
+
+    public static boolean canSwing(EntityLivingBase entity) {
+        ItemStack stack = entity.getHeldItem(EnumHand.MAIN_HAND);
+        Item item = stack.getItem();
+        return entity.ticksSinceLastSwing >= 0 && item.getAttributeModifiers(
+                EntityEquipmentSlot.MAINHAND,
+                stack
+        ).containsKey(SharedMonsterAttributes.ATTACK_SPEED.getName());
+    }
+
+    public static double getCoolPeriod(EntityLivingBase entity) {
+        return (1D / entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getAttributeValue() * Events.maxHurtResistantTime);
     }
 
     public static double getHurtResistantTime(Entity entity) {
@@ -158,9 +195,9 @@ public class Events {
     }
 
     public static double getThreshold(Entity entity) {
-        if(entity instanceof EntityLivingBase) {
+        if (entity instanceof EntityLivingBase) {
             ResourceLocation itemLocation = ((EntityLivingBase) entity).getHeldItemMainhand().getItem().getRegistryName();
-            if(BHTAPI.ATTACK_ITEM_THRESHOLD_MAP.containsKey(itemLocation)) {
+            if (BHTAPI.ATTACK_ITEM_THRESHOLD_MAP.containsKey(itemLocation)) {
                 return BHTAPI.ATTACK_ITEM_THRESHOLD_MAP.get(itemLocation);
             }
         }

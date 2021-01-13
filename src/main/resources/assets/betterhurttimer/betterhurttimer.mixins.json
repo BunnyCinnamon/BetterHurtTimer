@@ -6,17 +6,17 @@
   "refmap": "mixins.betterhurttimer.refmap.json",
   "target": "@env(DEFAULT)",
   "client": [
-    "HurtCameraEffectMixin",
-    "HurtAnimationMixin"
+    "HurtAnimationMixin",
+    "HurtCameraEffectMixin"
   ],
   "mixins": [
     "AttackEntityMixin",
-    "HurtTimeMixin",
-    "KnockbackMixin",
     "DamageArmorMixin",
-    "DamageSpecialArmorMixin",
     "DamageArmorMixinBukkit",
-    "DamageArmorMixinOverride"
+    "DamageArmorMixinOverride",
+    "DamageSpecialArmorMixin",
+    "HurtTimeMixin",
+    "KnockbackMixin"
   ],
   "injectors": {
     "defaultRequire": 1
