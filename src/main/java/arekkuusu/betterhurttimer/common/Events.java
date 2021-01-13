@@ -14,11 +14,16 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -107,7 +112,20 @@ public class Events {
         data.lastHurtTick = 0;
     }
 
-    public static final Function<Entity, AttackInfo> INFO_FUNCTION = u -> new AttackInfo(42);
+    @SubscribeEvent
+    public static void onPlayerAttack(AttackEntityEvent event) {
+        if (isClientWorld(event.getEntity())) return;
+        Capabilities.hurt(event.getPlayer()).ifPresent(capability -> {
+            final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(event.getTarget(), BHTAPI.INFO_FUNCTION);
+            Entity target = event.getTarget();
+            Entity attacker = event.getPlayer();
+            int ticksSinceLastHurt = Events.getHurtTime(target, attacker);
+            int ticksSinceLastMelee = event.getPlayer().ticksSinceLastSwing;
+            if(ticksSinceLastMelee > ticksSinceLastHurt) {
+                attackInfo.ticksSinceLastMelee = ticksSinceLastMelee;
+            }
+        });
+    }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onEntityAttack(LivingAttackEvent event) {
@@ -118,12 +136,10 @@ public class Events {
         Entity target = event.getEntity();
         Entity attacker = source.getImmediateSource();
         Capabilities.hurt(attacker).ifPresent(capability -> {
-            double maxHurtResistantTime = Events.getHurtResistantTime(target);
-            double attackerAttackSpeed = Events.getAttackSpeed(attacker);
-            double threshold = Events.getThreshold(attacker);
+
             //Calculate last hurt time required
-            int ticksSinceLastHurt = (int) ((float) maxHurtResistantTime * (attackerAttackSpeed * threshold));
-            final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, INFO_FUNCTION);
+            final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, BHTAPI.INFO_FUNCTION);
+            int ticksSinceLastHurt = Events.getHurtTime(target, attacker);
             int ticksSinceLastMelee = attackInfo.ticksSinceLastMelee;
             if (ticksSinceLastMelee < ticksSinceLastHurt) {
                 // What needs to be done to fix other peoples shit.
@@ -136,6 +152,31 @@ public class Events {
                 attackInfo.ticksSinceLastMelee = 0;
             }
         });
+    }
+
+    public static int getHurtTime(Entity target, Entity attacker) {
+        double threshold = Events.getThreshold(attacker);
+
+        if (attacker instanceof LivingEntity && Events.canSwing((LivingEntity) attacker)) {
+            return (int) (Events.getCoolPeriod((LivingEntity) attacker) * threshold);
+        } else {
+            double maxHurtResistantTime = Events.getHurtResistantTime(target);
+            double attackerAttackSpeed = Events.getAttackSpeed(attacker);
+            return (int) (maxHurtResistantTime * (attackerAttackSpeed * threshold));
+        }
+    }
+
+    public static boolean canSwing(LivingEntity entity) {
+        ItemStack stack = entity.getHeldItem(Hand.MAIN_HAND);
+        Item item = stack.getItem();
+        return entity.ticksSinceLastSwing >= 0 && item.getAttributeModifiers(
+                EquipmentSlotType.MAINHAND,
+                stack
+        ).containsKey(Attributes.field_233823_f_);
+    }
+
+    public static double getCoolPeriod(LivingEntity entity) {
+        return (1D / entity.getAttribute(Attributes.field_233823_f_).getValue() * Events.maxHurtResistantTime);
     }
 
     public static double getHurtResistantTime(Entity entity) {
