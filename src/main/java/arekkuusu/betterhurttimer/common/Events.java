@@ -176,7 +176,7 @@ public class Events {
     }
 
     public static double getCoolPeriod(LivingEntity entity) {
-        return (1D / entity.getAttribute(Attributes.field_233823_f_).getValue() * Events.maxHurtResistantTime);
+        return (1D / entity.getAttribute(Attributes.field_233825_h_).getValue() * Events.maxHurtResistantTime);
     }
 
     public static double getHurtResistantTime(Entity entity) {
