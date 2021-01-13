@@ -172,7 +172,7 @@ public class Events {
         return entity.ticksSinceLastSwing >= 0 && item.getAttributeModifiers(
                 EquipmentSlotType.MAINHAND,
                 stack
-        ).containsKey(Attributes.field_233823_f_);
+        ).containsKey(Attributes.field_233825_h_);
     }
 
     public static double getCoolPeriod(LivingEntity entity) {
