@@ -4,6 +4,7 @@ import arekkuusu.betterhurttimer.BHT;
 import arekkuusu.betterhurttimer.BHTConfig;
 import arekkuusu.betterhurttimer.api.BHTAPI;
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
+import arekkuusu.betterhurttimer.api.capability.HurtCapability;
 import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
 import arekkuusu.betterhurttimer.api.event.PreLivingAttackEvent;
@@ -24,9 +25,11 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 
 @Mod.EventBusSubscriber(modid = BHT.MOD_ID)
@@ -117,9 +120,12 @@ public class Events {
             Entity target = event.getTarget();
             Entity attacker = event.getEntityPlayer();
             int ticksSinceLastHurt = Events.getHurtTime(target, attacker);
-            int ticksSinceLastMelee = event.getEntityPlayer().ticksSinceLastSwing;
-            if(ticksSinceLastMelee > ticksSinceLastHurt) {
-                attackInfo.ticksSinceLastMelee = ticksSinceLastMelee;
+            try {
+                int ticksSinceLastMelee = BHTAPI.field.getInt(event.getEntityPlayer());
+                if (ticksSinceLastMelee > ticksSinceLastHurt) {
+                    attackInfo.ticksSinceLastMelee = ticksSinceLastMelee;
+                }
+            } catch (Exception ignored) {
             }
         });
     }
@@ -166,10 +172,15 @@ public class Events {
     public static boolean canSwing(EntityLivingBase entity) {
         ItemStack stack = entity.getHeldItem(EnumHand.MAIN_HAND);
         Item item = stack.getItem();
-        return entity.ticksSinceLastSwing >= 0 && item.getAttributeModifiers(
-                EntityEquipmentSlot.MAINHAND,
-                stack
-        ).containsKey(SharedMonsterAttributes.ATTACK_SPEED.getName());
+        boolean canSwing = false;
+        try {
+            canSwing = BHTAPI.field.getInt(entity) >= 0 && item.getAttributeModifiers(
+                    EntityEquipmentSlot.MAINHAND,
+                    stack
+            ).containsKey(SharedMonsterAttributes.ATTACK_SPEED.getName());
+        } catch(Exception ignored) {
+        }
+        return canSwing;
     }
 
     public static double getCoolPeriod(EntityLivingBase entity) {

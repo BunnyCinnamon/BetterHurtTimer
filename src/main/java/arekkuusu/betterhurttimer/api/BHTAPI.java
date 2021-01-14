@@ -10,7 +10,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
+import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -23,6 +25,12 @@ public final class BHTAPI {
     public static final Map<ResourceLocation, Double> ATTACK_THRESHOLD_MAP = new LinkedHashMap<>();
     public static final Map<ResourceLocation, Double> ATTACK_ITEM_THRESHOLD_MAP = new LinkedHashMap<>();
     public static final Function<Entity, AttackInfo> INFO_FUNCTION = u -> new AttackInfo();
+
+    public static Field field;
+    static {
+        field = ObfuscationReflectionHelper.findField(EntityLivingBase.class, "field_184617_aD");
+        field.setAccessible(true);
+    }
 
     public static void addSource(HurtSourceInfo info) {
         BHTAPI.DAMAGE_SOURCE_INFO_MAP.put(new HurtSourceInfo.HurtType(info.sourceName), info);

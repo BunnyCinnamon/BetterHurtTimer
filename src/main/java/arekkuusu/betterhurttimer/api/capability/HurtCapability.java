@@ -1,6 +1,7 @@
 package arekkuusu.betterhurttimer.api.capability;
 
 import arekkuusu.betterhurttimer.BHT;
+import arekkuusu.betterhurttimer.api.BHTAPI;
 import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -17,10 +18,12 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 import java.util.WeakHashMap;
 
 @SuppressWarnings("ConstantConditions")
@@ -87,7 +90,10 @@ public class HurtCapability implements ICapabilitySerializable<NBTTagCompound>, 
         public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
             if (event.getObject() instanceof EntityLivingBase) {
                 event.addCapability(KEY, Capabilities.HURT_LIMITER.getDefaultInstance());
-                ((EntityLivingBase) event.getObject()).ticksSinceLastSwing = -1;
+                try {
+                    BHTAPI.field.setInt(((EntityLivingBase) event.getObject()), -1);
+                } catch(Exception ignored) {
+                }
             }
         }
 
