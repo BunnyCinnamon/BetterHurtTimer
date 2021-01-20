@@ -32,7 +32,7 @@ public final class BHTAPI {
 
     public static LazyOptional<HurtSourceData> get(LivingEntity entity, DamageSource source) {
         HurtSourceInfo info = BHTAPI.DAMAGE_SOURCE_INFO_MAP.computeIfAbsent(source.getDamageType(), BHTAPI.HURT_SOURCE_INFO_FUNCTION.apply(entity));
-        return Capabilities.hurt(entity).map(c ->
+        return Capabilities.hurt(entity).lazyMap(c ->
                 c.hurtMap.computeIfAbsent(info.sourceName, BHTAPI.HURT_SOURCE_DATA_FUNCTION.apply(info))
         );
     }

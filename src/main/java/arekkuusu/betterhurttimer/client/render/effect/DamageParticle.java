@@ -56,7 +56,7 @@ public class DamageParticle extends Particle {
         Matrix4f matrix4f = stack.getLast().getMatrix();
         FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
         float f2 = (float) (-fontRenderer.func_238414_a_(text) / 2);
-        fontRenderer.func_238416_a_(text, f2, 0, color, false, matrix4f, bufferIn, true, 0, 15728880);
+        fontRenderer.func_238416_a_(text.func_241878_f(), f2, 0, color, false, matrix4f, bufferIn, true, 0, 15728880);
         bufferIn.finish();
     }
 
