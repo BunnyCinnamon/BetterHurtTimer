@@ -1,9 +1,12 @@
 package arekkuusu.betterhurttimer.api.capability.data;
 
+import com.google.common.collect.Sets;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.DamageSource;
 
 import javax.annotation.Nonnull;
+import java.util.HashSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HurtSourceInfo {
@@ -20,6 +23,7 @@ public class HurtSourceInfo {
 
     public static class HurtType implements CharSequence {
 
+        public final HashSet<CharSequence> matches = Sets.newHashSet();
         public final CharSequence type;
         public final Pattern pattern;
 
@@ -53,8 +57,16 @@ public class HurtSourceInfo {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof CharSequence)) return false;
-            CharSequence charSequence = (CharSequence) o;
-            return type.equals(o) || pattern.matcher(charSequence).matches();
+            CharSequence sequence = (CharSequence) o;
+            return type.equals(o) || matches.contains(o) || checkAndSaveMatch(sequence);
+        }
+
+        private Boolean checkAndSaveMatch(CharSequence sequence) {
+            Matcher matcher = pattern.matcher(sequence);
+            if (matcher.matches())
+                return matches.add(sequence);
+            else
+                return false;
         }
 
         @Override
@@ -82,7 +94,7 @@ public class HurtSourceInfo {
         public void trigger() {
             this.tick = this.info.waitTime;
             this.canApply = false;
-            if(lastHurtTick > info.waitTime) {
+            if (lastHurtTick > info.waitTime) {
                 this.lastHurtAmount = Integer.MIN_VALUE;
             }
         }
