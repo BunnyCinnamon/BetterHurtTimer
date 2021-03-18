@@ -23,7 +23,6 @@ public class HurtSourceInfo {
 
     public static class HurtType implements CharSequence {
 
-        public final HashSet<CharSequence> matches = Sets.newHashSet();
         public final CharSequence type;
         public final Pattern pattern;
 
@@ -57,16 +56,8 @@ public class HurtSourceInfo {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof CharSequence)) return false;
-            CharSequence sequence = (CharSequence) o;
-            return type.equals(o) || matches.contains(o) || checkAndSaveMatch(sequence);
-        }
-
-        private Boolean checkAndSaveMatch(CharSequence sequence) {
-            Matcher matcher = pattern.matcher(sequence);
-            if (matcher.matches())
-                return matches.add(sequence);
-            else
-                return false;
+            CharSequence charSequence = (CharSequence) o;
+            return type.equals(o) || pattern.matcher(charSequence).matches();
         }
 
         @Override
