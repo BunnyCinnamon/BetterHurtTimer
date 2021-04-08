@@ -19,6 +19,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
+import net.minecraft.util.IndirectEntityDamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -78,7 +79,7 @@ public class Events {
         if (isClientWorld(event.getEntityLiving())) return;
         if (!Events.onAttackEntityOverride) return;
         DamageSource source = event.getSource();
-        if (Events.isAttack(source)) return; //If my source is melee, return
+        if (Events.isAttack(source) && !(source instanceof IndirectEntityDamageSource)) return;
 
         LivingEntity entity = event.getEntityLiving();
         LazyOptional<HurtSourceData> optional = BHTAPI.get(entity, source);
@@ -98,7 +99,9 @@ public class Events {
             float lastAmount = event.getAmount();
             if (data.lastHurtTick < data.info.waitTime) {
                 if (Double.compare(Math.max(0, data.lastHurtAmount + BHTConfig.Runtime.DamageFrames.nextAttackDamageDifference), event.getAmount()) < 0) {
-                    event.setAmount(lastAmount - Math.max(0, data.lastHurtAmount));
+                    if(BHTConfig.Runtime.DamageFrames.nextAttackDamageDifferenceApply) {
+                        event.setAmount(lastAmount - Math.max(0, data.lastHurtAmount));
+                    }
                     data.lastHurtAmount = lastAmount;
                 } else {
                     event.setCanceled(true);
@@ -132,7 +135,8 @@ public class Events {
         if (isClientWorld(event.getEntity())) return;
         DamageSource source = event.getSource();
         if (!(source.getImmediateSource() instanceof LivingEntity) || event.getAmount() <= 0) return;
-        if (!Events.isAttack(source)) return;
+        if (!Events.isAttack(source) || (source instanceof IndirectEntityDamageSource)) return;
+
         Entity target = event.getEntity();
         Entity attacker = source.getImmediateSource();
         Capabilities.hurt(attacker).ifPresent(capability -> {

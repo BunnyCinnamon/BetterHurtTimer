@@ -16,6 +16,7 @@ public final class BHTConfig {
         public final ForgeConfigSpec.IntValue shieldResistantTime;
         public ForgeConfigSpec.ConfigValue<List<? extends String>> damageSource;
         public final ForgeConfigSpec.DoubleValue nextAttackDamageDifference;
+        public final ForgeConfigSpec.BooleanValue nextAttackDamageDifferenceApply;
         public final ForgeConfigSpec.DoubleValue attackThresholdPlayer;
         public final ForgeConfigSpec.DoubleValue attackThresholdDefault;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> attackThreshold;
@@ -75,12 +76,16 @@ public final class BHTConfig {
                             "^indirectMagic$:false:10",
                             "^thorns$:false:5",
                             "^explosion\\.player$:false:5",
+                            "^mob$:true:5",
                             "^skill$:true:20",
                             "^indirectSkill$:true:20"
                     ), o -> true);
             nextAttackDamageDifference = builder
-                    .comment("How much more damage the next attack must have to be accepted within the i-Frame.")
-                    .defineInRange("nextAttackDamageDifference", 0.5D, 0D, Double.MAX_VALUE);
+                    .comment("How much more damage the next attack must have to be accepted within the i-Frame")
+                    .defineInRange("nextAttackDamageDifference", 0.5D, Double.MIN_VALUE, Double.MAX_VALUE);
+            nextAttackDamageDifferenceApply = builder
+                    .comment("If false damage difference won't be reduced")
+                    .define("nextAttackDamageDifferenceApply", true);
             builder.pop();
             // attackFrames
             builder.comment("Direct Sources dependent on the attacker's attack speed and the vanilla iFrame time of the entity")
@@ -181,6 +186,7 @@ public final class BHTConfig {
             Runtime.DamageFrames.shieldResistantTime = Holder.COMMON.shieldResistantTime.get();
             Runtime.DamageFrames.damageSource = Holder.COMMON.damageSource.get();
             Runtime.DamageFrames.nextAttackDamageDifference = Holder.COMMON.nextAttackDamageDifference.get();
+            Runtime.DamageFrames.nextAttackDamageDifferenceApply = Holder.COMMON.nextAttackDamageDifferenceApply.get();
             // AttackFrames
             Runtime.AttackFrames.attackThresholdPlayer = Holder.COMMON.attackThresholdPlayer.get();
             Runtime.AttackFrames.attackThresholdDefault = Holder.COMMON.attackThresholdDefault.get();
@@ -199,6 +205,7 @@ public final class BHTConfig {
             public static int shieldResistantTime;
             public static List<? extends String> damageSource;
             public static double nextAttackDamageDifference;
+            public static boolean nextAttackDamageDifferenceApply;
         }
 
         public static class AttackFrames {
