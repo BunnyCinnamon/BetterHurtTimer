@@ -29,13 +29,12 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.function.Function;
-
 @Mod.EventBusSubscriber(modid = BHT.MOD_ID)
 public class Events {
 
     public static boolean onAttackEntityOverride = true;
     public static int maxHurtResistantTime = 20;
+    public static boolean onAttackPreFinished = false;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
@@ -50,7 +49,12 @@ public class Events {
                     }
                     if (data.info.doFrames && data.tick == 0 && !data.canApply) {
                         Events.onAttackEntityOverride = false;
-                        data.apply(event.getEntity());
+                        try {
+                            data.apply(event.getEntity());
+                        } catch (Exception e) {
+                            Events.onAttackEntityOverride = true;
+                            throw e;
+                        }
                         Events.onAttackEntityOverride = true;
                     }
                 });
@@ -76,6 +80,7 @@ public class Events {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onAttackEntityFromPre(PreLivingAttackEvent event) {
+        if(Events.onAttackPreFinished) return;
         if (isClientWorld(event.getEntityLiving())) return;
         if (!Events.onAttackEntityOverride) return;
         DamageSource source = event.getSource();
@@ -83,23 +88,23 @@ public class Events {
 
         LivingEntity entity = event.getEntityLiving();
         LazyOptional<HurtSourceData> optional = BHTAPI.get(entity, source);
-        if(!optional.isPresent()) return;
+        if (!optional.isPresent()) return;
         HurtSourceData data = optional.orElseThrow(UnsupportedOperationException::new);
-        data.damageSource = source; //Last source to do the damage gets the kill
+        data.damageSource = source;
         if (data.tick == 0 && data.canApply) {
             data.trigger();
         }
 
         if (data.info.doFrames) {
             if (data.lastHurtTick < data.info.waitTime) {
-                data.accumulate(event.getAmount());
+                data.amount += event.getAmount();
                 event.setCanceled(true);
             }
         } else if (data.tick != 0) {
             float lastAmount = event.getAmount();
             if (data.lastHurtTick < data.info.waitTime) {
                 if (Double.compare(Math.max(0, data.lastHurtAmount + BHTConfig.Runtime.DamageFrames.nextAttackDamageDifference), event.getAmount()) < 0) {
-                    if(BHTConfig.Runtime.DamageFrames.nextAttackDamageDifferenceApply) {
+                    if (BHTConfig.Runtime.DamageFrames.nextAttackDamageDifferenceApply) {
                         event.setAmount(lastAmount - Math.max(0, data.lastHurtAmount));
                     }
                     data.lastHurtAmount = lastAmount;
@@ -113,6 +118,17 @@ public class Events {
             data.canApply = true;
         }
         data.lastHurtTick = 0;
+        Events.onAttackPreFinished = true;
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    public static void onEntityAttackPreFinished(LivingAttackEvent event) {
+        if (isClientWorld(event.getEntityLiving())) return;
+        if (!Events.onAttackEntityOverride) return;
+        DamageSource source = event.getSource();
+        if (Events.isAttack(source) && !(source instanceof IndirectEntityDamageSource)) return;
+
+        Events.onAttackPreFinished = false;
     }
 
     @SubscribeEvent
@@ -124,7 +140,7 @@ public class Events {
             Entity attacker = event.getPlayer();
             int ticksSinceLastHurt = Events.getHurtTime(target, attacker);
             int ticksSinceLastMelee = event.getPlayer().ticksSinceLastSwing;
-            if(ticksSinceLastMelee > ticksSinceLastHurt) {
+            if (ticksSinceLastMelee > ticksSinceLastHurt) {
                 attackInfo.ticksSinceLastMelee = ticksSinceLastMelee;
             }
         });

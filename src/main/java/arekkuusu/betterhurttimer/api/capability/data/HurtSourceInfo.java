@@ -90,10 +90,6 @@ public class HurtSourceInfo {
             }
         }
 
-        public void accumulate(float damage) {
-            this.amount += damage;
-        }
-
         public void apply(Entity entity) {
             entity.hurtResistantTime = 0;
             entity.attackEntityFrom(this.damageSource, this.amount);
