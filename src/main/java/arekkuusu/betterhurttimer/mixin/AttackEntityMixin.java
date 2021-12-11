@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class AttackEntityMixin {
 
     private static float amountTemp;
-    private static boolean isRemote = true;
 
     @Inject(method = "onLivingAttack(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "HEAD"), cancellable = true, remap = false)
     private static void onLivingAttack(LivingEntity entity, DamageSource src, float amount, CallbackInfoReturnable<Boolean> info) {
@@ -23,14 +22,13 @@ public class AttackEntityMixin {
         if (MinecraftForge.EVENT_BUS.post(event)) {
             info.setReturnValue(false);
             info.cancel();
-        } else if(!entity.world.isRemote) {
+        } else {
             amountTemp = event.getAmount();
-            isRemote = false;
         }
     }
 
     @ModifyVariable(method = "onLivingAttack(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/util/DamageSource;F)Z", at = @At(target = "Lnet/minecraftforge/common/MinecraftForge;EVENT_BUS:Lnet/minecraftforge/eventbus/api/IEventBus;", value = "FIELD", shift = At.Shift.BEFORE), remap = false)
     private static float onLivingAttackAmountSet(float amount) {
-        return isRemote ? amount : amountTemp;
+        return amountTemp;
     }
 }
