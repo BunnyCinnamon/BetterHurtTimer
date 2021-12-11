@@ -21,6 +21,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
 import net.minecraft.util.IndirectEntityDamageSource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -122,7 +123,7 @@ public class Events {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
-    public static void onEntityAttackPreFinished(LivingAttackEvent event) {
+    public static void onEntityAttackPreFinished(PreLivingAttackEvent event) {
         if (isClientWorld(event.getEntityLiving())) return;
         if (!Events.onAttackEntityOverride) return;
         DamageSource source = event.getSource();
@@ -134,6 +135,7 @@ public class Events {
     @SubscribeEvent
     public static void onPlayerAttack(AttackEntityEvent event) {
         if (isClientWorld(event.getEntity())) return;
+        if(!event.getEntity().world.isRemote && event.getEntity() instanceof FakePlayer) return;
         Capabilities.hurt(event.getPlayer()).ifPresent(capability -> {
             final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(event.getTarget(), BHTAPI.INFO_FUNCTION);
             Entity target = event.getTarget();
