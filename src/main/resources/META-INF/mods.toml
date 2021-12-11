@@ -1,9 +1,0 @@
-modLoader="javafml"
-loaderVersion="[31,)"
-[[mods]]
-modId="betterhurttimer"
-version="${file.jarVersion}"
-displayName="Better Hurt Timer"
-authors="Arekkuusu"
-displayURL=""
-description="A balanced attack frame remover mod"

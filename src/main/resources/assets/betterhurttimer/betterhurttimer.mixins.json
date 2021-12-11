@@ -6,17 +6,20 @@
   "refmap": "mixins.betterhurttimer.refmap.json",
   "target": "@env(DEFAULT)",
   "client": [
-    "HurtCameraEffectMixin",
-    "HurtAnimationMixin"
+    "HurtAnimationMixin",
+    "HurtCameraEffectMixin"
   ],
   "mixins": [
     "AttackEntityMixin",
-    "HurtTimeMixin",
-    "KnockbackMixin",
     "DamageArmorMixin",
-    "DamageSpecialArmorMixin"
+    "DamageArmorMixinBukkit",
+    "DamageArmorMixinOverride",
+    "DamageSpecialArmorMixin",
+    "HurtTimeMixin",
+    "KnockbackMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "plugin": "arekkuusu.betterhurttimer.common.core.Plugin"
 }

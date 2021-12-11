@@ -19,13 +19,4 @@ public class HurtAnimationMixin {
             info.cancel();
         }
     }
-
-    @Inject(method = "handleStatusUpdate(B)V", at = @At("HEAD"), cancellable = true)
-    public void handleStatusUpdate(byte id, CallbackInfo info) {
-        if (id == 2 || id == 33 || id == 36) {
-            if (this.hurtTime > 0) {
-                info.cancel();
-            }
-        }
-    }
 }

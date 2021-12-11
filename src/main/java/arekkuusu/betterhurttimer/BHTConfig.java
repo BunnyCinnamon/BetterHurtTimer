@@ -7,6 +7,7 @@ public class BHTConfig {
 
     @Config.Comment("Global Values")
     @Config.LangKey(BHT.MOD_ID + ".config.global")
+    @Config.RequiresMcRestart
     public static Values CONFIG = new Values();
 
     @Config.Comment("Client Values")
@@ -36,39 +37,40 @@ public class BHTConfig {
             @Config.RangeInt(min = 0)
             public int shieldResistantTime = 5;
             @Config.Comment("Damage sources that need a specific iFrame." +
-                    "\n\nFormat: [*Damage Source name]:[*Should damage stack between iFrames]:[*iFrame time]" +
+                    "\n\nFormat: [*Damage Source name (Regex)]:[*Should damage stack between iFrames]:[*iFrame time]" +
                     "\n* Damage Source name -> Used to identify the type of damage you're receiving." +
                     "\n* Should damage stack between iFrames -> 'true' or 'false', when set to 'true' damage will always stack regardless of the iFrame, but it will only apply the damage every iFrame." +
                     "\n* iFrame time -> How often you can receive damage from this damage source." +
                     "\n\n\nExamples:" +
                     "\n- inFire:false:10 -> Source 'inFire' does not stack and only allows hits every 10 game ticks." +
+                    "\n- inFire|lava:false:10 -> Sources 'inFire' or 'lava' do not stack and only allows hits every 10 game ticks (lava and fire will share the same iFrame)." +
                     "\n- arrow:true:10 - > Source 'arrow' does stack and hits the accumulated damage every 10 game ticks." +
                     "\n\n# If the next attack deals more than the previous the difference is applied" +
                     "\n")
             public String[] damageSource = {
-                    "inFire:false:10",
-                    "lightningBolt:false:10",
-                    "lava:false:10",
-                    "hotFloor:false:10",
-                    "inWall:false:10",
-                    "cramming:false:10",
-                    "cactus:false:10",
-                    "fall:false:0",
-                    "flyIntoWall:false:0",
-                    "outOfWorld:false:10",
-                    "generic:false:5",
-                    "magic:false:10",
-                    "wither:false:10",
-                    "anvil:false:10",
-                    "fallingBlock:false:10",
-                    "dragonBreath:false:10",
-                    "arrow:true:10",
-                    "thrown:true:10",
-                    "indirectMagic:false:10",
-                    "thorns:false:5",
-                    "explosion.player:false:5",
-                    "skill:true:20",
-                    "indirectSkill:true:20"
+                    "^inFire$:false:10",
+                    "^lightningBolt$:false:10",
+                    "^lava$:false:10",
+                    "^hotFloor$:false:10",
+                    "^inWall$:false:10",
+                    "^cramming$:false:10",
+                    "^cactus$:false:10",
+                    "^fall$:false:0",
+                    "^flyIntoWall$:false:0",
+                    "^outOfWorld$:false:10",
+                    "^generic$:false:5",
+                    "^magic$:false:10",
+                    "^wither$:false:10",
+                    "^anvil$:false:10",
+                    "^fallingBlock$:false:10",
+                    "^dragonBreath$:false:10",
+                    "^arrow$:true:10",
+                    "^thrown$:true:10",
+                    "^indirectMagic$:false:10",
+                    "^thorns$:false:5",
+                    "^explosion\\.player$:false:5",
+                    "^skill$:true:20",
+                    "^indirectSkill$:true:20"
             };
             @Config.RangeDouble(min = 0)
             public double nextAttackDamageDifference = 0.5D;
@@ -93,6 +95,18 @@ public class BHTConfig {
                     "tconstruct:blueslime:1",
                     "thaumcraft:thaumslime:1",
             };
+            @Config.Comment("Items that need a specific attack reload speed. [Overwrites mob specific attack threshold]" +
+                    "\n\nFormat: [*mod:item)]:[*attack reload speed]" +
+                    "\n* Item Source name -> Used to identify the item used." +
+                    "\n* attack reload speed -> Attack reload speed before the attack is canceled." +
+                    "\n\n\nExamples:  (when attack threshold is 1)" +
+                    "\n- minecraft:iron_axe:2 -> Iron Axe can never attack." +
+                    "\n- minecraft:iron_axe:1 -> Iron Axe can only attack when fully up." +
+                    "\n- minecraft:iron_axe:0.5 -> Iron Axe can only attack when more than halfway up." +
+                    "\n- minecraft:iron_axe:0 -> Iron Axe can always attack." +
+                    "\n")
+            public String[] itemSource = {
+            };
             @Config.Comment("Damage Sources from direct hits." +
                     "\n\nExample: Players and Mobs melee Damage Source.\n")
             public String[] attackSources = {
@@ -102,6 +116,8 @@ public class BHTConfig {
         }
 
         public static class KnockbackFrames {
+            @Config.Comment("Set this to false to activate 1.16+ knockback mechanics.")
+            public boolean knockbackAsAChance = false;
             @Config.Comment("Damage Sources will not apply knockback when on this list.")
             public String[] knockbackExemptSource = {
                     "indirectSkill"
@@ -113,6 +129,7 @@ public class BHTConfig {
         public final Rendering rendering = new Rendering();
 
         public static class Rendering {
+            public boolean doHurtCameraEffect = true;
             public boolean showDamageParticles = true;
             public int damageColor = 0xFF0000;
             public int healColor = 0x00FF00;
