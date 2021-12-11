@@ -29,3 +29,5 @@ forge*changelog.txt
 keystore.jks
 secrets.properties
 /src/test/
+/logs/debug.log
+/logs/latest.log
