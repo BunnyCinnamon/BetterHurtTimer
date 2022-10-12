@@ -23,6 +23,7 @@ public final class BHTAPI {
     public static final Function<HurtSourceInfo, Function<CharSequence, HurtSourceData>> HURT_SOURCE_DATA_FUNCTION = i -> s -> new HurtSourceData(i);
     public static final Object2ObjectMap<CharSequence, HurtSourceInfo> DAMAGE_SOURCE_INFO_MAP = new Object2ObjectArrayMap<>();
     public static final Map<ResourceLocation, Double> ATTACK_THRESHOLD_MAP = new LinkedHashMap<>();
+    public static final Map<ResourceLocation, Double> ATTACK_INDIRECT_THRESHOLD_MAP = new LinkedHashMap<>();
     public static final Map<ResourceLocation, Double> ATTACK_ITEM_THRESHOLD_MAP = new LinkedHashMap<>();
     public static final Function<Entity, AttackInfo> INFO_FUNCTION = u -> new AttackInfo();
 
@@ -38,6 +39,10 @@ public final class BHTAPI {
 
     public static void addAttacker(ResourceLocation location, double threshold) {
         BHTAPI.ATTACK_THRESHOLD_MAP.put(location, threshold);
+    }
+
+    public static void addAttackerIndirect(ResourceLocation location, double threshold) {
+        BHTAPI.ATTACK_INDIRECT_THRESHOLD_MAP.put(location, threshold);
     }
 
     public static void addItem(ResourceLocation location, double threshold) {

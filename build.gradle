@@ -4,10 +4,11 @@ buildscript {
         jcenter()
         mavenCentral()
         maven { url = 'https://dist.creeper.host/Sponge/maven' }
+        maven { url = 'https://repo.spongepowered.org/maven' }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.7.32'
     }
 }
 
@@ -99,18 +100,6 @@ jar {
         ])
     }
 }
-
-task signJar(type: SignJar, dependsOn: jar) {
-
-    keyStore = project.ext.secrets.keyStore // This needs to be a path to the keystore file
-    alias = project.ext.secrets.keyStoreAlias
-    storePass = project.ext.secrets.keyStorePass
-    keyPass = project.ext.secrets.keyStoreKeyPass
-    inputFile = jar.archivePath
-    outputFile = jar.archivePath
-}
-
-build.dependsOn signJar
 
 jar.finalizedBy('reobfJar')
 

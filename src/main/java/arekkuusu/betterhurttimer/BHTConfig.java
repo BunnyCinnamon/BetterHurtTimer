@@ -95,6 +95,19 @@ public class BHTConfig {
                     "tconstruct:blueslime:1",
                     "thaumcraft:thaumslime:1",
             };
+            @Config.Comment("Mobs that need a specific attack threshold." +
+                    "\n\nFormat: [*mod:entity]:[*Attack threshold]" +
+                    "\n* mod:entity -> Id of the entity in-game." +
+                    "\n* Attack threshold -> Attack reload speed before the attack is canceled." +
+                    "\n\n\nExample:" +
+                    "\n- mowziesmobs:boulder_small:1 -> 'Boulder' from mod 'mowziesmobs' will only be able to attack after one full second." +
+                    "\n")
+            public String[] attackThresholdIndirect = {
+                    "mowziesmobs:boulder_small:20",
+                    "mowziesmobs:boulder_medium:20",
+                    "mowziesmobs:boulder_large:20",
+                    "mowziesmobs:boulder_huge:20",
+            };
             @Config.Comment("Items that need a specific attack reload speed. [Overwrites mob specific attack threshold]" +
                     "\n\nFormat: [*mod:item)]:[*attack reload speed]" +
                     "\n* Item Source name -> Used to identify the item used." +

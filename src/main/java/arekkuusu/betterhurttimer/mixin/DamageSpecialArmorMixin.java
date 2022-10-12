@@ -4,6 +4,7 @@ import arekkuusu.betterhurttimer.BHTConfig;
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
 import arekkuusu.betterhurttimer.api.capability.HurtCapability;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
@@ -44,14 +45,14 @@ public abstract class DamageSpecialArmorMixin {
         }
     }
 
-    @Inject(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraftforge/common/ISpecialArmor$ArmorProperties;Priority:I", value = "FIELD", shift = At.Shift.BEFORE, ordinal = 2), locals = LocalCapture.CAPTURE_FAILEXCEPTION, remap = false)
+    @Inject(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraftforge/common/ISpecialArmor$ArmorProperties;Priority:I", value = "FIELD", shift = At.Shift.BEFORE, ordinal = 2), remap = false)
     private static void applyRatio(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage, CallbackInfoReturnable<Float> info) {
         damageAlt -= damageAlt * ratioTemp;
         ratioTemp = 0;
     }
 
     @Inject(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Lnet/minecraftforge/common/ISpecialArmor$ArmorProperties;AbsorbRatio:D", value = "FIELD", shift = At.Shift.BEFORE, ordinal = 0), locals = LocalCapture.CAPTURE_FAILEXCEPTION, remap = false)
-    private static void storeValues(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage, CallbackInfoReturnable<Float> info, double totalArmor, double totalToughness, ArrayList<ISpecialArmor.ArmorProperties> dmgVals, ISpecialArmor.ArmorProperties props[], int level, double ratio, ISpecialArmor.ArmorProperties var14[], int var15, int var16, ISpecialArmor.ArmorProperties prop) {
+    private static void storeValues(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage, CallbackInfoReturnable<Float> cir, double totalArmor, double totalToughness, ArrayList dmgVals, ISpecialArmor.ArmorProperties[] props, int level, double ratio, ISpecialArmor.ArmorProperties[] var14, int var15, int var16, ISpecialArmor.ArmorProperties prop) {
         absorbTemp = prop.AbsorbRatio;
         damageTemp = damage;
         ratioTemp = ratio;

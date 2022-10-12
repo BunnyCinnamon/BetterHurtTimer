@@ -9,7 +9,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -23,15 +22,14 @@ import java.util.regex.Pattern;
         modid = BHT.MOD_ID,
         name = BHT.MOD_NAME,
         version = BHT.MOD_VERSION,
-        acceptedMinecraftVersions = "[1.12.2]",
-        certificateFingerprint = "72cd337644e68ff7257f69b2927894048793e577"
+        acceptedMinecraftVersions = "[1.12.2]"
 )
 public class BHT {
 
     //Useful names
     public static final String MOD_ID = "betterhurttimer";
     public static final String MOD_NAME = "Better Hurt Timer";
-    public static final String MOD_VERSION = "1.12.2-1.3.0.0";
+    public static final String MOD_VERSION = "1.12.2-1.3.0.1";
     public static final String SERVER_PROXY = "arekkuusu." + MOD_ID + ".common.ServerProxy";
     public static final String CLIENT_PROXY = "arekkuusu." + MOD_ID + ".client.ClientProxy";
 
@@ -71,6 +69,14 @@ public class BHT {
                 BHT.LOG.warn("[Attack Frames Config] - String " + s + " is not a valid format");
             }
         }
+        for (String s : BHTConfig.CONFIG.attackFrames.attackThresholdIndirect) {
+            Matcher m = r.matcher(s);
+            if (m.matches()) {
+                BHTAPI.addAttackerIndirect(new ResourceLocation(m.group(1)), Double.parseDouble(m.group(2)));
+            } else {
+                BHT.LOG.warn("[Attack Frames Config] - String " + s + " is not a valid format");
+            }
+        }
         for (String s : BHTConfig.CONFIG.attackFrames.itemSource) {
             Matcher m = r.matcher(s);
             if (m.matches()) {
@@ -97,10 +103,5 @@ public class BHT {
     @EventHandler
     public void onServerLoad(FMLServerStartingEvent event) {
         event.registerServerCommand(new CommandExport());
-    }
-
-    @EventHandler
-    public void onFingerprintViolation(FMLFingerprintViolationEvent event) {
-        LOG.warn("Invalid fingerprint detected!");
     }
 }

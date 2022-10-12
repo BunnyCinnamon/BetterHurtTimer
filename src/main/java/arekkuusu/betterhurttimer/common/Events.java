@@ -19,6 +19,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -134,6 +135,33 @@ public class Events {
     public static void onEntityAttack(LivingAttackEvent event) {
         if (isClientWorld(event.getEntity())) return;
         DamageSource source = event.getSource();
+
+        if(source instanceof EntityDamageSourceIndirect) {
+            ResourceLocation location = EntityList.getKey(source.getImmediateSource().getClass());
+            if(BHTAPI.ATTACK_INDIRECT_THRESHOLD_MAP.containsKey(location)) {
+                Entity target = event.getEntity();
+                Entity attacker = source.getImmediateSource();
+                Capabilities.hurt(attacker).ifPresent(capability -> {
+
+                    //Calculate last hurt time required
+                    final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, BHTAPI.INFO_FUNCTION);
+                    int ticksSinceLastHurt = BHTAPI.ATTACK_INDIRECT_THRESHOLD_MAP.get(location).intValue();
+                    int ticksSinceLastMelee = attackInfo.ticksSinceLastMelee;
+                    if (ticksSinceLastMelee < ticksSinceLastHurt) {
+                        // What needs to be done to fix other peoples shit.
+                        if (attackInfo.ticksSinceLastMelee == 0 && (!(attacker instanceof EntityPlayer) || ((EntityPlayer) attacker).getCooledAttackStrength(0) == 0)) {
+                            attackInfo.override = true;
+                        } else {
+                            event.setCanceled(true);
+                        }
+                    } else {
+                        attackInfo.ticksSinceLastMelee = 0;
+                    }
+                });
+                return;
+            }
+        }
+
         if (!(source.getImmediateSource() instanceof EntityLivingBase) || event.getAmount() <= 0) return;
         if (!Events.isAttack(source)) return;
         Entity target = event.getEntity();

@@ -88,8 +88,8 @@ public class HurtCapability implements ICapabilitySerializable<NBTTagCompound>, 
 
         @SubscribeEvent
         public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+            event.addCapability(KEY, Capabilities.HURT_LIMITER.getDefaultInstance());
             if (event.getObject() instanceof EntityLivingBase) {
-                event.addCapability(KEY, Capabilities.HURT_LIMITER.getDefaultInstance());
                 try {
                     BHTAPI.field.setInt(((EntityLivingBase) event.getObject()), -1);
                 } catch(Exception ignored) {
