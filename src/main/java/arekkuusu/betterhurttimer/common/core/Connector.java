@@ -7,6 +7,6 @@ public class Connector implements IMixinConnector {
 
     @Override
     public void connect() {
-        Mixins.addConfiguration("assets/betterhurttimer/betterhurttimer.mixins.json");
+        Mixins.addConfiguration("betterhurttimer.mixins.json");
     }
 }

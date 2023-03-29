@@ -7,10 +7,12 @@ import arekkuusu.betterhurttimer.api.capability.Capabilities;
 import arekkuusu.betterhurttimer.api.capability.HurtCapability;
 import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.common.Events;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.DamageSource;
-import net.minecraft.world.World;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.common.util.LazyOptional;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,86 +21,87 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(EntityLivingBase.class)
+@Mixin(LivingEntity.class)
 public abstract class HurtTimeMixin extends Entity {
 
     @Shadow
     public int hurtTime;
     @Shadow
-    public float attackedAtYaw;
+    public float hurtDir;
     public float preAttackedAtYaw;
     public int preHurtTime;
     public DamageSource preDamageSource;
 
-    public HurtTimeMixin(World p_i1582_1_) {
-        super(p_i1582_1_);
+    public HurtTimeMixin(EntityType<?> entityTypeIn, Level worldIn) {
+        super(entityTypeIn, worldIn);
     }
 
-    @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At("HEAD"))
+    @Inject(method = "hurt", at = @At("HEAD"))
     public void attackEntityFromBefore(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
         if (this.hurtTime > 0) {
             this.preHurtTime = this.hurtTime;
         } else {
             this.preHurtTime = 0;
         }
-        if (this.attackedAtYaw > 0) {
-            this.preAttackedAtYaw = this.attackedAtYaw;
+        if (this.hurtDir > 0) {
+            this.preAttackedAtYaw = this.hurtDir;
         } else {
             this.preAttackedAtYaw = 0;
         }
         //noinspection ConstantConditions
-        BHT.getProxy().setPreHurtTime((EntityLivingBase) ((Object) this));
+        BHT.getProxy().setPreHurtTime((LivingEntity) ((Object) this));
         this.preDamageSource = source;
     }
 
-    @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;hurtResistantTime:I", ordinal = 0))
-    public int attackResistantOverride(EntityLivingBase target) {
+    @Redirect(method = "hurt", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;invulnerableTime:I", ordinal = 0))
+    public int attackResistantOverride(LivingEntity target, DamageSource source) {
         if (Events.isAttack(this.preDamageSource)) {
-            Entity attacker = this.preDamageSource.getTrueSource();
-            HurtCapability capability = Capabilities.hurt(attacker).orElse(null);
-            if (capability != null) {
+            Entity attacker = this.preDamageSource.getEntity();
+            LazyOptional<HurtCapability> optional = Capabilities.hurt(attacker);
+            if (optional.isPresent()) {
+                HurtCapability capability = optional.orElseThrow(UnsupportedOperationException::new);
                 final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(target, BHTAPI.INFO_FUNCTION);
                 if (attackInfo.override) {
                     attackInfo.override = false;
-                    return target.maxHurtResistantTime;
+                    return target.invulnerableDuration;
                 }
             }
         }
-        return target.hurtResistantTime;
+        return target.invulnerableTime;
     }
 
-    @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;hurtTime:I", shift = At.Shift.AFTER))
+    @Inject(method = "hurt", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;hurtTime:I", shift = At.Shift.AFTER))
     public void hurtResistantTime(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
-        this.hurtResistantTime = BHTConfig.CONFIG.damageFrames.hurtResistantTime;
+        this.invulnerableTime = BHTConfig.Runtime.DamageFrames.hurtResistantTime;
     }
 
-    @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setEntityState(Lnet/minecraft/entity/Entity;B)V", ordinal = 2))
-    public void turnOffSound(World world, Entity entity, byte b) {
+    @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;broadcastEntityEvent(Lnet/minecraft/world/entity/Entity;B)V", ordinal = 2))
+    public void turnOffSound(Level world, Entity entity, byte b) {
         if (b == 2 || b == 33 || b == 36 || b == 37) {
             if (this.preHurtTime == 0) {
-                world.setEntityState(entity, b);
+                world.broadcastEntityEvent(entity, b);
             }
         }
     }
 
-    @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/EntityLivingBase;playHurtSound(Lnet/minecraft/util/DamageSource;)V"))
-    public void playHurtSound(EntityLivingBase that, DamageSource source) {
+    @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;playHurtSound(Lnet/minecraft/world/damagesource/DamageSource;)V"))
+    public void playHurtSound(LivingEntity that, DamageSource source) {
         if (this.preHurtTime == 0) {
             this.playHurtSound(source);
         }
     }
 
-    @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At("TAIL"))
+    @Inject(method = "hurt", at = @At("TAIL"))
     public void attackEntityFromAfter(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
         if (this.preHurtTime > 0) {
             this.hurtTime = this.preHurtTime;
         }
         if (this.preAttackedAtYaw > 0) {
-            this.attackedAtYaw = this.preAttackedAtYaw;
+            this.hurtDir = this.preAttackedAtYaw;
         }
     }
 
-    @Inject(method = "playHurtSound(Lnet/minecraft/util/DamageSource;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "playHurtSound", at = @At("HEAD"), cancellable = true)
     public void playHurtSound(DamageSource source, CallbackInfo info) {
         if (this.preHurtTime > 0) {
             info.cancel();

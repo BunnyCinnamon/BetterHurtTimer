@@ -21,13 +21,16 @@ public class Plugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if("arekkuusu.betterhurttimer.mixin.DamageArmorMixin".equals(mixinClassName) && hasClass("org.bukkit.plugin.Plugin")) {
+        if("arekkuusu.betterhurttimer.mixin.DamageArmorMixin".equals(mixinClassName) && (hasClass("org.bukkit.plugin.Plugin") || hasClass("com.obscuria.obscureapi.ObscureAPI"))) {
             return false;
         }
         if("arekkuusu.betterhurttimer.mixin.DamageArmorMixinBukkit".equals(mixinClassName) && !hasClass("org.bukkit.plugin.Plugin")) {
             return false;
         }
         if("arekkuusu.betterhurttimer.mixin.DamageArmorMixinOverride".equals(mixinClassName) && !hasClass("com.robertx22.mine_and_slash.mixins.LivingEntityMixin")) {
+            return false;
+        }
+        if("arekkuusu.betterhurttimer.mixin.DamageArmorMixinObscureApi".equals(mixinClassName) && !hasClass("com.obscuria.obscureapi.ObscureAPI")) {
             return false;
         }
         return true;

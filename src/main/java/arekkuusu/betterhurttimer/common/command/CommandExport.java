@@ -3,73 +3,50 @@ package arekkuusu.betterhurttimer.common.command;
 import arekkuusu.betterhurttimer.BHT;
 import arekkuusu.betterhurttimer.api.BHTAPI;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo;
-import com.google.common.collect.ImmutableList;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.Registry;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class CommandExport extends CommandBase {
+public class CommandExport {
 
-    @Override
-    public String getName() {
-        return BHT.MOD_ID + "_export";
-    }
-
-    @Override
-    public List<String> getAliases() {
-        return ImmutableList.of("bht_export");
-    }
-
-    @Override
-    public String getUsage(ICommandSender sender) {
-        return "Usage: /" + getName() + " [damageFrames/attackFrames/mobIdListAll]";
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 2;
-    }
-
-    @Override
-    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
-        if (args.length == 1) {
-            return getListOfStringsMatchingLastWord(args, "damageFrames", "attackFrames", "mobIdListAll");
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        LiteralArgumentBuilder<CommandSourceStack> argument = Commands.literal("bht_export").requires(commandSource -> commandSource.hasPermission(2));
+        String[] args = {"damageFrames", "attackFrames", "mobIdListAll"};
+        for (String arg : args) {
+            argument.then(Commands.argument(arg, StringArgumentType.word()).executes(context -> export(context.getSource(), StringArgumentType.getString(context, arg))));
         }
-        return super.getTabCompletions(server, sender, args, targetPos);
+        dispatcher.register(argument);
     }
 
-    @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
-        File file = Objects.requireNonNull(server.getServer()).getDataDirectory();
+    public static int export(CommandSourceStack commandSource, String argument) {
+        File file = Objects.requireNonNull(commandSource.getServer()).getServerDirectory();
         if (file.exists() && file.canWrite() && file.isDirectory()) {
             try {
                 File exportFile = new File(file.getCanonicalPath()
                         + File.separator + "config"
                         + File.separator + "bht",
-                        args[0] + ".txt"
+                        argument + ".txt"
                 );
                 //noinspection ResultOfMethodCallIgnored
                 exportFile.getParentFile().mkdirs();
                 if (exportFile.createNewFile()) {
-                    message(sender, "export.created");
+                    message(commandSource, "export.created");
                 } else {
-                    message(sender, "export.overwritten");
+                    message(commandSource, "export.overwritten");
                 }
                 FileWriter export = new FileWriter(exportFile);
-                switch (args[0]) {
+                switch (argument) {
                     case "damageFrames":
                         for (Map.Entry<CharSequence, HurtSourceInfo> entry : BHTAPI.DAMAGE_SOURCE_INFO_MAP.entrySet()) {
                             HurtSourceInfo hurtSourceInfo = entry.getValue();
@@ -84,23 +61,24 @@ public class CommandExport extends CommandBase {
                         }
                         break;
                     case "mobIdListAll":
-                        for (ResourceLocation location : GameRegistry.findRegistry(EntityEntry.class).getKeys()) {
+                        for (ResourceLocation location : Registry.ENTITY_TYPE.keySet()) {
                             export.write(location.toString() + "\n");
                         }
                         break;
                 }
                 export.close();
             } catch (IOException e) {
-                message(sender, "export.unsuccessful");
+                message(commandSource, "export.unsuccessful");
                 e.printStackTrace();
             } finally {
-                message(sender, "export.successful");
+                message(commandSource, "export.successful");
             }
         }
+        return 0;
     }
 
-    private void message(ICommandSender sender, String type, Object... args) {
+    private static void message(CommandSourceStack commandSource, String type, Object... args) {
         String key = "command." + BHT.MOD_ID + "." + type;
-        sender.sendMessage(new TextComponentTranslation(key, args));
+        commandSource.sendSuccess(new TranslatableComponent(key, args), true);
     }
 }

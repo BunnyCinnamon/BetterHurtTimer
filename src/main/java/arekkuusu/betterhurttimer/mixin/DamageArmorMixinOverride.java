@@ -1,7 +1,7 @@
 package arekkuusu.betterhurttimer.mixin;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -9,19 +9,19 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(EntityLivingBase.class)
+@Mixin(LivingEntity.class)
 public abstract class DamageArmorMixinOverride {
 
     boolean executing;
 
-    @Inject(method = "applyArmorCalculations(Lnet/minecraft/util/DamageSource;F)F", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getDamageAfterArmorAbsorb", at = @At("HEAD"), cancellable = true)
     @Final //Take that!
     public void onArmorReduction(DamageSource source, float damage, CallbackInfoReturnable<Float> info) {
         if (!executing) {
             executing = true;
-            DamageSource newSource = new DamageSource(source.getDamageType());
-            if (source.isUnblockable()) {
-                newSource.setDamageBypassesArmor();
+            DamageSource newSource = new DamageSource(source.getMsgId());
+            if (source.isBypassInvul()) {
+                newSource.bypassInvul();
             }
             info.setReturnValue(applyArmorCalculations(newSource, damage));
             info.cancel();

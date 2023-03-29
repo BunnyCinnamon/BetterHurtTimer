@@ -1,0 +1,25 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+license="MIT"
+
+[[mods]]
+modId = "betterhurttimer"
+version = "${version}"
+displayName = "Better Hurt Timer"
+description = '''
+A balanced attack frame remover mod
+'''
+
+[[dependencies.betterhurttimer]]
+modId = "forge"
+mandatory = true
+versionRange = "[40,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.betterhurttimer]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.18.2,)"
+ordering = "NONE"
+side = "BOTH"

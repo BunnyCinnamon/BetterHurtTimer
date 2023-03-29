@@ -1,22 +1,22 @@
 package arekkuusu.betterhurttimer.api.event;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.DamageSource;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 
 @Cancelable
 public class PreLivingKnockBackEvent extends Event {
 
-    private final EntityLivingBase entityLiving;
+    private final LivingEntity entityLiving;
     private final DamageSource source;
 
-    public PreLivingKnockBackEvent(EntityLivingBase entityLiving, DamageSource source) {
+    public PreLivingKnockBackEvent(LivingEntity entityLiving, DamageSource source) {
         this.entityLiving = entityLiving;
         this.source = source;
     }
 
-    public EntityLivingBase getEntityLiving() {
+    public LivingEntity getEntityLiving() {
         return entityLiving;
     }
 

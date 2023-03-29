@@ -1,10 +1,10 @@
 package arekkuusu.betterhurttimer.common.proxy;
 
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.world.entity.LivingEntity;
 
 public interface IProxy {
 
-     default void setPreHurtTime(EntityLivingBase entity) {
-         //Nothing here
-     }
+    default void setPreHurtTime(LivingEntity entity) {
+        //Nothing here
+    }
 }

@@ -1,7 +1,7 @@
 package arekkuusu.betterhurttimer.api.capability.data;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nonnull;
 import java.util.regex.Pattern;
@@ -87,14 +87,10 @@ public class HurtSourceInfo {
             }
         }
 
-        public void accumulate(float damage) {
-            this.amount += damage;
-        }
-
         public void apply(Entity entity) {
-            entity.hurtResistantTime = 0;
-            entity.attackEntityFrom(this.damageSource, this.amount);
-            entity.hurtResistantTime = 0;
+            entity.invulnerableTime = 0;
+            entity.hurt(this.damageSource, this.amount);
+            entity.invulnerableTime = 0;
             this.canApply = true;
             this.amount = 0;
         }
