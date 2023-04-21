@@ -1,13 +1,13 @@
 package arekkuusu.betterhurttimer.api.capability;
 
 import arekkuusu.betterhurttimer.BHT;
+import arekkuusu.betterhurttimer.api.BHTAPI;
 import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -61,9 +61,10 @@ public class HurtCapability implements ICapabilitySerializable<CompoundTag> {
 
         @SubscribeEvent
         public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-            if (event.getObject() instanceof LivingEntity) {
+            if (event.getObject() instanceof LivingEntity || BHTAPI.isCustom(event.getObject())) {
                 event.addCapability(KEY, new HurtCapability());
-                ((LivingEntity) event.getObject()).attackStrengthTicker = -1;
+                if (event.getObject() instanceof LivingEntity)
+                    ((LivingEntity) event.getObject()).attackStrengthTicker = -1;
             }
         }
 
