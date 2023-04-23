@@ -201,7 +201,8 @@ public class Events {
         if (isClientWorld(event.getEntity())) return;
         DamageSource source = event.getSource();
         if (event.getAmount() <= 0) return;
-        if (!Events.isAttack(source) || (source instanceof IndirectEntityDamageSource)) return;
+        if (!Events.isAttack(source) && !BHTAPI.isCustom(source.getDirectEntity())) return;
+        if (source instanceof IndirectEntityDamageSource && !BHTAPI.isCustom(source.getDirectEntity())) return;
         if (!(source.getDirectEntity() instanceof LivingEntity) && !BHTAPI.isCustom(source.getDirectEntity())) return;
 
         Entity target = event.getEntity();
