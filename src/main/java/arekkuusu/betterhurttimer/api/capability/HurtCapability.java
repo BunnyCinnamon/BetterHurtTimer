@@ -70,7 +70,7 @@ public class HurtCapability implements ICapabilitySerializable<CompoundTag> {
 
         @SubscribeEvent
         public void clonePlayer(PlayerEvent.Clone event) {
-            event.getEntityLiving().getCapability(Capabilities.HURT_LIMITER, null).ifPresent(cap -> {
+            event.getEntity().getCapability(Capabilities.HURT_LIMITER, null).ifPresent(cap -> {
                 event.getOriginal().getCapability(Capabilities.HURT_LIMITER, null).ifPresent(sub -> {
                     cap.deserializeNBT(sub.serializeNBT());
                 });

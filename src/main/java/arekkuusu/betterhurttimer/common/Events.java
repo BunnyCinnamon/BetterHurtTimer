@@ -40,7 +40,7 @@ public class Events {
     public static boolean onAttackPreFinished = false;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
+    public static void onEntityUpdate(LivingEvent.LivingTickEvent event) {
         if (isClientWorld(event.getEntity())) return;
         Capabilities.hurt(event.getEntity()).ifPresent(capability -> {
             //Source Damage i-Frames
@@ -82,9 +82,9 @@ public class Events {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onNonLivingEntityUpdate(TickEvent.WorldTickEvent event) {
-        if (event.world.isClientSide()) return;
-        for (Entity entity : ((ServerLevel) event.world).getEntities().getAll()) {
+    public static void onNonLivingEntityUpdate(TickEvent.LevelTickEvent event) {
+        if (event.level.isClientSide()) return;
+        for (Entity entity : ((ServerLevel) event.level).getEntities().getAll()) {
             if(!(entity instanceof LivingEntity) && BHTAPI.isCustom(entity)) {
                 Capabilities.hurt(entity).ifPresent(capability -> {
                     //Source Damage i-Frames
@@ -184,12 +184,12 @@ public class Events {
     public static void onPlayerAttack(AttackEntityEvent event) {
         if (isClientWorld(event.getEntity())) return;
         if(!event.getEntity().level.isClientSide() && event.getEntity() instanceof FakePlayer) return;
-        Capabilities.hurt(event.getPlayer()).ifPresent(capability -> {
+        Capabilities.hurt(event.getEntity()).ifPresent(capability -> {
             final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(event.getTarget(), BHTAPI.INFO_FUNCTION);
             Entity target = event.getTarget();
-            Entity attacker = event.getPlayer();
+            Entity attacker = event.getEntity();
             int ticksSinceLastHurt = Events.getHurtTime(target, attacker);
-            int ticksSinceLastMelee = event.getPlayer().attackStrengthTicker;
+            int ticksSinceLastMelee = event.getEntity().attackStrengthTicker;
             if (ticksSinceLastMelee > ticksSinceLastHurt) {
                 attackInfo.ticksSinceLastMelee = ticksSinceLastMelee;
             }
