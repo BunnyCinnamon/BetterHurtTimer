@@ -13,7 +13,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,7 +26,7 @@ public class DamageParticle extends Particle {
 
     public boolean grow = true;
     public float scale;
-    public TranslatableComponent text;
+    public Component text;
     public int color;
 
     public DamageParticle(int damage, ClientLevel world, double parX, double parY, double parZ, double parMotionX, double parMotionY, double parMotionZ) {
@@ -35,7 +35,7 @@ public class DamageParticle extends Particle {
         this.scale = 1F;
         this.lifetime = 12;
         this.color = damage > 0 ? BHTConfig.Runtime.Rendering.damageColor : BHTConfig.Runtime.Rendering.healColor;
-        this.text = new TranslatableComponent(BHT.MOD_ID + ".particle", Math.abs(damage));
+        this.text = Component.translatable(BHT.MOD_ID + ".particle", Math.abs(damage));
     }
 
     @Override
@@ -54,8 +54,8 @@ public class DamageParticle extends Particle {
         stack.scale(this.scale, this.scale, this.scale);
         Matrix4f matrix4f = stack.last().pose();
         Font fontRenderer = Minecraft.getInstance().font;
-        float f2 = (float) (-fontRenderer.width(text) / 2);
-        fontRenderer.drawInBatch(text.getString(), f2, 0, color, false, matrix4f, bufferIn, true, 0, 15728880);
+        float f2 = (float) (-fontRenderer.width(this.text) / 2);
+        fontRenderer.drawInBatch(this.text, f2, 0F, color, false, matrix4f, bufferIn, true, 0, 15728880);
         bufferIn.endBatch();
     }
 

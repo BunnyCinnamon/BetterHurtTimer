@@ -18,8 +18,8 @@ import net.minecraftforge.fml.common.Mod;
 public class Events {
 
     @SubscribeEvent
-    public static void displayDamage(LivingEvent.LivingUpdateEvent event) {
-        LivingEntity entity = event.getEntityLiving();
+    public static void displayDamage(LivingEvent.LivingTickEvent event) {
+        LivingEntity entity = event.getEntity();
         if (!entity.level.isClientSide() || !BHTConfig.Runtime.Rendering.showDamageParticles) return;
 
         Capabilities.health(entity).ifPresent(cap -> {

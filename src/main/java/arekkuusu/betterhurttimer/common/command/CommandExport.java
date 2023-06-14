@@ -9,8 +9,10 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.common.Tags;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -79,6 +81,6 @@ public class CommandExport {
 
     private static void message(CommandSourceStack commandSource, String type, Object... args) {
         String key = "command." + BHT.MOD_ID + "." + type;
-        commandSource.sendSuccess(new TranslatableComponent(key, args), true);
+        commandSource.sendSuccess(Component.translatable(key, args), true);
     }
 }
