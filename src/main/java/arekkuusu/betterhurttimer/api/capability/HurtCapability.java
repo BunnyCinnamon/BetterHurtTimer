@@ -1,6 +1,7 @@
 package arekkuusu.betterhurttimer.api.capability;
 
 import arekkuusu.betterhurttimer.BHT;
+import arekkuusu.betterhurttimer.api.BHTAPI;
 import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -80,9 +81,11 @@ public class HurtCapability implements ICapabilitySerializable<CompoundNBT>, Cap
 
         @SubscribeEvent
         public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-            if (event.getObject() instanceof LivingEntity) {
+            if (event.getObject() instanceof LivingEntity || BHTAPI.isCustom(event.getObject())) {
                 event.addCapability(KEY, Capabilities.HURT_LIMITER.getDefaultInstance());
-                ((LivingEntity) event.getObject()).ticksSinceLastSwing = -1;
+                if (event.getObject() instanceof LivingEntity) {
+                    ((LivingEntity) event.getObject()).ticksSinceLastSwing = -1;
+                }
             }
         }
 

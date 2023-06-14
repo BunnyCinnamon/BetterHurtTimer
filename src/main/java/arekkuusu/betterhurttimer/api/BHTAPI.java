@@ -12,6 +12,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.LazyOptional;
 
+import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -23,6 +24,14 @@ public final class BHTAPI {
     public static final Object2ObjectMap<CharSequence, HurtSourceInfo> DAMAGE_SOURCE_INFO_MAP = new Object2ObjectArrayMap<>();
     public static final Map<ResourceLocation, Double> ATTACK_THRESHOLD_MAP = new LinkedHashMap<>();
     public static final Function<Entity, AttackInfo> INFO_FUNCTION = u -> new AttackInfo();
+
+    public static boolean isCustom(@Nullable Entity entity) {
+        ResourceLocation location = null;
+        if (entity != null) {
+            location = entity.getType().getRegistryName();
+        }
+        return BHTAPI.ATTACK_THRESHOLD_MAP.containsKey(location);
+    }
 
     public static synchronized void addSource(HurtSourceInfo info) {
         BHTAPI.DAMAGE_SOURCE_INFO_MAP.put(new HurtSourceInfo.HurtType(info.sourceName), info);

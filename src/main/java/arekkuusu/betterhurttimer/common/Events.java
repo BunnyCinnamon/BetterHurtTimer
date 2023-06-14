@@ -21,8 +21,10 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
 import net.minecraft.util.IndirectEntityDamageSource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
@@ -77,6 +79,52 @@ public class Events {
                 capability.lastShieldDamage = 0;
             }
         });
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onNonLivingEntityUpdate(TickEvent.WorldTickEvent event) {
+        if (event.world.isRemote) return;
+        for (Entity entity : ((ServerWorld) event.world).func_241136_z_()) {
+            if(!(entity instanceof LivingEntity) && BHTAPI.isCustom(entity)) {
+                Capabilities.hurt(entity).ifPresent(capability -> {
+                    //Source Damage i-Frames
+                    if (!capability.hurtMap.isEmpty()) {
+                        capability.hurtMap.forEach((s, data) -> {
+                            ++data.lastHurtTick;
+                            if (data.tick > 0) {
+                                --data.tick;
+                            }
+                            if (data.info.doFrames && data.tick == 0 && !data.canApply) {
+                                Events.onAttackEntityOverride = false;
+                                try {
+                                    data.apply(entity);
+                                } catch (Exception e) {
+                                    Events.onAttackEntityOverride = true;
+                                    throw e;
+                                }
+                                Events.onAttackEntityOverride = true;
+                            }
+                        });
+                    }
+                    //Melee i-Frames
+                    if (!capability.meleeMap.isEmpty()) {
+                        capability.meleeMap.forEach((e, a) -> a.ticksSinceLastMelee++);
+                    }
+                    //Armor i-Frames
+                    if (capability.ticksToArmorDamage > 0) {
+                        --capability.ticksToArmorDamage;
+                    } else {
+                        capability.lastArmorDamage = 0;
+                    }
+                    //Shield i-Frames
+                    if (capability.ticksToShieldDamage > 0) {
+                        --capability.ticksToShieldDamage;
+                    } else {
+                        capability.lastShieldDamage = 0;
+                    }
+                });
+            }
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -152,8 +200,10 @@ public class Events {
     public static void onEntityAttack(LivingAttackEvent event) {
         if (isClientWorld(event.getEntity())) return;
         DamageSource source = event.getSource();
-        if (!(source.getImmediateSource() instanceof LivingEntity) || event.getAmount() <= 0) return;
-        if (!Events.isAttack(source) || (source instanceof IndirectEntityDamageSource)) return;
+        if (event.getAmount() <= 0) return;
+        if (!Events.isAttack(source) && !BHTAPI.isCustom(source.getImmediateSource())) return;
+        if (source instanceof IndirectEntityDamageSource && !BHTAPI.isCustom(source.getImmediateSource())) return;
+        if (!(source.getImmediateSource() instanceof LivingEntity) && !BHTAPI.isCustom(source.getImmediateSource())) return;
 
         Entity target = event.getEntity();
         Entity attacker = source.getImmediateSource();
