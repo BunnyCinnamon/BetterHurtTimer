@@ -26,6 +26,9 @@ public abstract class HurtTimeMixin extends Entity {
 
     @Shadow
     public int hurtTime;
+    @Shadow
+    public float hurtDir;
+    public float preAttackedAtYaw;
     public int preHurtTime;
     public DamageSource preDamageSource;
 
@@ -35,6 +38,11 @@ public abstract class HurtTimeMixin extends Entity {
 
     @Inject(method = "hurt", at = @At("HEAD"))
     public void attackEntityFromBefore(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
+        if (this.hurtDir > 0) {
+            this.preAttackedAtYaw = this.hurtDir;
+        } else {
+            this.preAttackedAtYaw = 0;
+        }
         if (this.hurtTime > 0) {
             this.preHurtTime = this.hurtTime;
         } else {
@@ -85,6 +93,9 @@ public abstract class HurtTimeMixin extends Entity {
 
     @Inject(method = "hurt", at = @At("TAIL"))
     public void attackEntityFromAfter(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
+        if (this.preAttackedAtYaw > 0) {
+            this.hurtDir = this.preAttackedAtYaw;
+        }
         if (this.preHurtTime > 0) {
             this.hurtTime = this.preHurtTime;
         }
