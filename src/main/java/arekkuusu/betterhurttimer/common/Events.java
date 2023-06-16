@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -133,7 +132,7 @@ public class Events {
         if (isClientWorld(event.getEntityLiving())) return;
         if (!Events.onAttackEntityOverride) return;
         DamageSource source = event.getSource();
-        if (Events.isAttack(source) && !(source instanceof IndirectEntityDamageSource)) return;
+        if (Events.isAttack(source) && !(source.isIndirect())) return;
 
         LivingEntity entity = event.getEntityLiving();
         LazyOptional<HurtSourceData> optional = BHTAPI.get(entity, source);
@@ -175,7 +174,7 @@ public class Events {
         if (isClientWorld(event.getEntityLiving())) return;
         if (!Events.onAttackEntityOverride) return;
         DamageSource source = event.getSource();
-        if (Events.isAttack(source) && !(source instanceof IndirectEntityDamageSource)) return;
+        if (Events.isAttack(source) && !(source.isIndirect())) return;
 
         Events.onAttackPreFinished = false;
     }
@@ -202,7 +201,7 @@ public class Events {
         DamageSource source = event.getSource();
         if (event.getAmount() <= 0) return;
         if (!Events.isAttack(source) && !BHTAPI.isCustom(source.getDirectEntity())) return;
-        if (source instanceof IndirectEntityDamageSource && !BHTAPI.isCustom(source.getDirectEntity())) return;
+        if (source.isIndirect() && !BHTAPI.isCustom(source.getDirectEntity())) return;
         if (!(source.getDirectEntity() instanceof LivingEntity) && !BHTAPI.isCustom(source.getDirectEntity())) return;
 
         Entity target = event.getEntity();

@@ -1,7 +1,10 @@
 package arekkuusu.betterhurttimer.mixin;
 
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,10 +22,7 @@ public abstract class DamageArmorMixinOverride {
     public void onArmorReduction(DamageSource source, float damage, CallbackInfoReturnable<Float> info) {
         if (!executing) {
             executing = true;
-            DamageSource newSource = new DamageSource(source.getMsgId());
-            if (source.isBypassInvul()) {
-                newSource.bypassInvul();
-            }
+            DamageSource newSource = new DamageSource(source.typeHolder());
             info.setReturnValue(applyArmorCalculations(newSource, damage));
             info.cancel();
             executing = false;

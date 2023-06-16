@@ -9,6 +9,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -63,7 +64,7 @@ public class CommandExport {
                         }
                         break;
                     case "mobIdListAll":
-                        for (ResourceLocation location : Registry.ENTITY_TYPE.keySet()) {
+                        for (ResourceLocation location : BuiltInRegistries.ENTITY_TYPE.keySet()) {
                             export.write(location.toString() + "\n");
                         }
                         break;

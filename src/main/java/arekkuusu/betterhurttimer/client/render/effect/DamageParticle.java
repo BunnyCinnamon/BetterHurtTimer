@@ -5,7 +5,6 @@ import arekkuusu.betterhurttimer.BHTConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -18,6 +17,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
 
@@ -55,7 +55,7 @@ public class DamageParticle extends Particle {
         Matrix4f matrix4f = stack.last().pose();
         Font fontRenderer = Minecraft.getInstance().font;
         float f2 = (float) (-fontRenderer.width(this.text) / 2);
-        fontRenderer.drawInBatch(this.text, f2, 0F, color, false, matrix4f, bufferIn, true, 0, 15728880);
+        fontRenderer.drawInBatch(this.text, f2, 0F, color, false, matrix4f, bufferIn, Font.DisplayMode.NORMAL, 0, 15728880);
         bufferIn.endBatch();
     }
 

@@ -3,6 +3,7 @@ package arekkuusu.betterhurttimer.mixin;
 import arekkuusu.betterhurttimer.BHTConfig;
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
 import arekkuusu.betterhurttimer.api.capability.HurtCapability;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -49,7 +50,7 @@ public abstract class DamageArmorMixinObscureApi {
 
     @Inject(method = "getDamageAfterArmorAbsorb", at = @At("HEAD"), cancellable = true, require = 0)
     public void damageArmor(DamageSource source, float damage, CallbackInfoReturnable<Float> info) {
-        if (!source.isBypassArmor()) {
+        if (!source.is(DamageTypeTags.BYPASSES_ARMOR)) {
             LazyOptional<HurtCapability> optional = Capabilities.hurt((LivingEntity) (Object) this);
             if (optional.isPresent()) {
                 HurtCapability capability = optional.orElseThrow(UnsupportedOperationException::new);
