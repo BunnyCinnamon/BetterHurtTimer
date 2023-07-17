@@ -37,10 +37,7 @@ public class HealthCapability implements ICapabilitySerializable<CompoundTag> {
     public static class Handler {
         private static final ResourceLocation KEY = new ResourceLocation(BHT.MOD_ID, "health");
 
-        @SubscribeEvent
-        public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-            if (event.getObject() instanceof LivingEntity && event.getObject().getLevel().isClientSide())
-                event.addCapability(KEY, new HealthCapability());
+        public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {//???????????????????????????????????????
         }
     }
 }
