@@ -58,6 +58,7 @@ public class HurtCapability implements ICapabilitySerializable<CompoundTag> {
 
     public static class Handler {
         private static final ResourceLocation KEY = new ResourceLocation(BHT.MOD_ID, "hurt");
+        private static final ResourceLocation KEY2 = new ResourceLocation(BHT.MOD_ID, "health");
 
         @SubscribeEvent
         public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
@@ -67,7 +68,7 @@ public class HurtCapability implements ICapabilitySerializable<CompoundTag> {
                     ((LivingEntity) event.getObject()).attackStrengthTicker = -1;
             }
             if (event.getObject() instanceof LivingEntity && event.getObject().getLevel().isClientSide())
-                event.addCapability(KEY, new HealthCapability());
+                event.addCapability(KEY2, new HealthCapability());
         }
 
         @SubscribeEvent
