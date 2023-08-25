@@ -1,5 +1,6 @@
 package arekkuusu.betterhurttimer.common.core;
 
+import arekkuusu.betterhurttimer.BHTConfig;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -28,6 +29,17 @@ public class Plugin implements IMixinConfigPlugin {
             return false;
         }
         if("arekkuusu.betterhurttimer.mixin.DamageArmorMixinOverride".equals(mixinClassName) && !hasClass("com.robertx22.mine_and_slash.mixins.LivingEntityMixin")) {
+            return false;
+        }
+        if("arekkuusu.betterhurttimer.mixin.DamageArmorMixinObscureApi".equals(mixinClassName) && !hasClass("com.obscuria.obscureapi.ObscureAPI")) {
+            return false;
+        }
+        if(BHTConfig.CONFIG.attackFrames.turnOffMixins && ("arekkuusu.betterhurttimer.mixin.DamageArmorMixin".equals(mixinClassName) ||
+                "arekkuusu.betterhurttimer.mixin.HurtTimeMixin".equals(mixinClassName) ||
+                "arekkuusu.betterhurttimer.mixin.KnockbackMixin".equals(mixinClassName) ||
+                "arekkuusu.betterhurttimer.mixin.AttackEntityMixin".equals(mixinClassName) ||
+                "arekkuusu.betterhurttimer.mixin.HurtAnimationMixin".equals(mixinClassName) ||
+                "arekkuusu.betterhurttimer.mixin.HurtCameraEffectMixin".equals(mixinClassName))) {
             return false;
         }
         return true;

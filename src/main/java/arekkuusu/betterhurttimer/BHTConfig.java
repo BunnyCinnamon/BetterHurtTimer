@@ -113,6 +113,9 @@ public class BHTConfig {
                     "player",
                     "mob"
             };
+            @Config.Comment("Compatability mode." +
+                    "\n\nMixins will not apply when this is true.\n")
+            public Boolean turnOffMixins = false;
         }
 
         public static class KnockbackFrames {

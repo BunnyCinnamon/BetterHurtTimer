@@ -3,7 +3,8 @@ package arekkuusu.betterhurttimer.api;
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
 import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo;
-import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
+import arekkuusu.betterhurttimer.api.capability.data.HurtSourceData;
+import arekkuusu.betterhurttimer.api.capability.data.HurtType;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.entity.Entity;
@@ -32,11 +33,11 @@ public final class BHTAPI {
         field.setAccessible(true);
     }
 
-    public static void addSource(HurtSourceInfo info) {
-        BHTAPI.DAMAGE_SOURCE_INFO_MAP.put(new HurtSourceInfo.HurtType(info.sourceName), info);
+    public static synchronized void addSource(HurtSourceInfo info) {
+        BHTAPI.DAMAGE_SOURCE_INFO_MAP.put(new HurtType(info.sourceName), info);
     }
 
-    public static void addAttacker(ResourceLocation location, double threshold) {
+    public static synchronized void addAttacker(ResourceLocation location, double threshold) {
         BHTAPI.ATTACK_THRESHOLD_MAP.put(location, threshold);
     }
 
@@ -45,7 +46,7 @@ public final class BHTAPI {
     }
 
     public static HurtSourceData get(EntityLivingBase entity, DamageSource source) {
-        HurtSourceInfo info = BHTAPI.DAMAGE_SOURCE_INFO_MAP.computeIfAbsent(source.getDamageType(), BHTAPI.HURT_SOURCE_INFO_FUNCTION.apply(entity));
+        HurtSourceInfo info = BHTAPI.DAMAGE_SOURCE_INFO_MAP.get(source.getDamageType());
         return Capabilities.hurt(entity).map(c ->
                 c.hurtMap.computeIfAbsent(info.sourceName, BHTAPI.HURT_SOURCE_DATA_FUNCTION.apply(info))
         ).orElseThrow(UnsupportedOperationException::new);
