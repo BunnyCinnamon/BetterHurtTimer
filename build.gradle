@@ -1,9 +1,15 @@
 buildscript {
     repositories {
+        maven { url = 'https://maven.minecraftforge.net/' }
         maven { url = 'https://files.minecraftforge.net/maven' }
+        maven {
+            name "ModMaven"
+            url "https://modmaven.dev"
+        }
         jcenter()
         mavenCentral()
         maven { url = 'https://dist.creeper.host/Sponge/maven' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
@@ -14,7 +20,6 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'maven-publish'
 
-import net.minecraftforge.gradle.common.task.SignJar
 boolean isSponge = hasProperty("isSponge")
 if (file('secrets.properties').exists()) {
     println "Loading parameters from secrets.properties"
@@ -99,18 +104,6 @@ jar {
         ])
     }
 }
-
-task signJar(type: SignJar, dependsOn: jar) {
-
-    keyStore = project.ext.secrets.keyStore // This needs to be a path to the keystore file
-    alias = project.ext.secrets.keyStoreAlias
-    storePass = project.ext.secrets.keyStorePass
-    keyPass = project.ext.secrets.keyStoreKeyPass
-    inputFile = jar.archivePath
-    outputFile = jar.archivePath
-}
-
-build.dependsOn signJar
 
 jar.finalizedBy('reobfJar')
 
