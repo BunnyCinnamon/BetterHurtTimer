@@ -5,7 +5,7 @@ import arekkuusu.betterhurttimer.BHTConfig;
 import arekkuusu.betterhurttimer.api.BHTAPI;
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
 import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
-import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
+import arekkuusu.betterhurttimer.api.capability.data.HurtSourceData;
 import arekkuusu.betterhurttimer.api.event.PreLivingAttackEvent;
 import arekkuusu.betterhurttimer.api.event.PreLivingKnockBackEvent;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +26,6 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -35,155 +34,75 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = BHT.MOD_ID)
 public class Events {
 
-    public static boolean onAttackEntityOverride = true;
     public static int maxHurtResistantTime = 20;
-    public static boolean onAttackPreFinished = false;
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onEntityUpdate(LivingEvent.LivingUpdateEvent event) {
-        if (isClientWorld(event.getEntity())) return;
-        Capabilities.hurt(event.getEntity()).ifPresent(capability -> {
-            //Source Damage i-Frames
-            if (!capability.hurtMap.isEmpty()) {
-                capability.hurtMap.forEach((s, data) -> {
-                    ++data.lastHurtTick;
-                    if (data.tick > 0) {
-                        --data.tick;
-                    }
-                    if (data.info.doFrames && data.tick == 0 && !data.canApply) {
-                        Events.onAttackEntityOverride = false;
-                        try {
-                            data.apply(event.getEntity());
-                        } catch (Exception e) {
-                            Events.onAttackEntityOverride = true;
-                            throw e;
-                        }
-                        Events.onAttackEntityOverride = true;
-                    }
-                });
-            }
-            //Melee i-Frames
-            if (!capability.meleeMap.isEmpty()) {
-                capability.meleeMap.forEach((e, a) -> a.ticksSinceLastMelee++);
-            }
-            //Armor i-Frames
-            if (capability.ticksToArmorDamage > 0) {
-                --capability.ticksToArmorDamage;
-            } else {
-                capability.lastArmorDamage = 0;
-            }
-            //Shield i-Frames
-            if (capability.ticksToShieldDamage > 0) {
-                --capability.ticksToShieldDamage;
-            } else {
-                capability.lastShieldDamage = 0;
-            }
-        });
-    }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onNonLivingEntityUpdate(TickEvent.WorldTickEvent event) {
         if (event.world.isClientSide()) return;
+
         for (Entity entity : ((ServerLevel) event.world).getEntities().getAll()) {
-            if(!(entity instanceof LivingEntity) && BHTAPI.isCustom(entity)) {
-                Capabilities.hurt(entity).ifPresent(capability -> {
-                    //Source Damage i-Frames
-                    if (!capability.hurtMap.isEmpty()) {
-                        capability.hurtMap.forEach((s, data) -> {
-                            ++data.lastHurtTick;
-                            if (data.tick > 0) {
-                                --data.tick;
-                            }
-                            if (data.info.doFrames && data.tick == 0 && !data.canApply) {
-                                Events.onAttackEntityOverride = false;
-                                try {
-                                    data.apply(entity);
-                                } catch (Exception e) {
-                                    Events.onAttackEntityOverride = true;
-                                    throw e;
-                                }
-                                Events.onAttackEntityOverride = true;
-                            }
-                        });
-                    }
-                    //Melee i-Frames
-                    if (!capability.meleeMap.isEmpty()) {
-                        capability.meleeMap.forEach((e, a) -> a.ticksSinceLastMelee++);
-                    }
-                    //Armor i-Frames
-                    if (capability.ticksToArmorDamage > 0) {
-                        --capability.ticksToArmorDamage;
-                    } else {
-                        capability.lastArmorDamage = 0;
-                    }
-                    //Shield i-Frames
-                    if (capability.ticksToShieldDamage > 0) {
-                        --capability.ticksToShieldDamage;
-                    } else {
-                        capability.lastShieldDamage = 0;
-                    }
-                });
-            }
+            // Invulnerable Off
+            entity.invulnerableTime = 0;
+            // Invulnerable Off
+            Capabilities.hurt(entity).ifPresent(capability -> {
+                //Source Damage i-Frames
+                if (!capability.hurtMap.isEmpty()) {
+                    capability.hurtMap.forEach((s, data) -> {
+                        data.update();
+                    });
+                }
+                //Melee i-Frames
+                if (!capability.meleeMap.isEmpty()) {
+                    capability.meleeMap.forEach((e, a) -> a.ticksSinceLastMelee++);
+                }
+                //Armor i-Frames
+                if (capability.ticksToArmorDamage > 0) {
+                    --capability.ticksToArmorDamage;
+                } else {
+                    capability.lastArmorDamage = 0;
+                }
+                //Shield i-Frames
+                if (capability.ticksToShieldDamage > 0) {
+                    --capability.ticksToShieldDamage;
+                } else {
+                    capability.lastShieldDamage = 0;
+                }
+            });
         }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onAttackEntityFromPre(PreLivingAttackEvent event) {
-        if(Events.onAttackPreFinished) return;
         if (isClientWorld(event.getEntityLiving())) return;
-        if (!Events.onAttackEntityOverride) return;
-        DamageSource source = event.getSource();
-        if (Events.isAttack(source) && !(source instanceof IndirectEntityDamageSource)) return;
 
+        DamageSource source = event.getSource();
         LivingEntity entity = event.getEntityLiving();
         LazyOptional<HurtSourceData> optional = BHTAPI.get(entity, source);
-        if (!optional.isPresent()) return;
-        HurtSourceData data = optional.orElseThrow(UnsupportedOperationException::new);
-        data.damageSource = source;
-        if (data.tick == 0 && data.canApply) {
-            data.trigger();
-        }
 
-        if (data.info.doFrames) {
-            if (data.lastHurtTick < data.info.waitTime) {
-                data.amount += event.getAmount();
+        if (Events.isAttack(source) && !(source instanceof IndirectEntityDamageSource)) return;
+        if (!optional.isPresent()) return;
+
+        HurtSourceData data = optional.orElseThrow(UnsupportedOperationException::new);
+
+        if (!data.canApply()) {
+            float lastAmount = event.getAmount();
+            if (Double.compare(data.lastHurtAmount + BHTConfig.Runtime.DamageFrames.nextAttackDamageDifference, event.getAmount()) > 0) {
+                if (BHTConfig.Runtime.DamageFrames.nextAttackDamageDifferenceApply) {
+                    event.setAmount(lastAmount - Math.max(0, (float) data.lastHurtAmount));
+                }
+                data.lastHurtAmount = lastAmount;
+            } else {
                 event.setCanceled(true);
             }
-        } else if (data.tick != 0) {
-            float lastAmount = event.getAmount();
-            if (data.lastHurtTick < data.info.waitTime) {
-                if (Double.compare(Math.max(0, data.lastHurtAmount + BHTConfig.Runtime.DamageFrames.nextAttackDamageDifference), event.getAmount()) < 0) {
-                    if (BHTConfig.Runtime.DamageFrames.nextAttackDamageDifferenceApply) {
-                        event.setAmount(lastAmount - Math.max(0, data.lastHurtAmount));
-                    }
-                    data.lastHurtAmount = lastAmount;
-                } else {
-                    event.setCanceled(true);
-                }
-            } else {
-                data.lastHurtAmount = lastAmount;
-            }
         } else {
-            data.canApply = true;
+            data.trigger();
         }
-        data.lastHurtTick = 0;
-        Events.onAttackPreFinished = true;
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
-    public static void onEntityAttackPreFinished(PreLivingAttackEvent event) {
-        if (isClientWorld(event.getEntityLiving())) return;
-        if (!Events.onAttackEntityOverride) return;
-        DamageSource source = event.getSource();
-        if (Events.isAttack(source) && !(source instanceof IndirectEntityDamageSource)) return;
-
-        Events.onAttackPreFinished = false;
     }
 
     @SubscribeEvent
     public static void onPlayerAttack(AttackEntityEvent event) {
         if (isClientWorld(event.getEntity())) return;
-        if(!event.getEntity().level.isClientSide() && event.getEntity() instanceof FakePlayer) return;
+        if (!event.getEntity().level.isClientSide() && event.getEntity() instanceof FakePlayer) return;
         Capabilities.hurt(event.getPlayer()).ifPresent(capability -> {
             final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(event.getTarget(), BHTAPI.INFO_FUNCTION);
             Entity target = event.getTarget();
@@ -199,8 +118,10 @@ public class Events {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onEntityAttack(LivingAttackEvent event) {
         if (isClientWorld(event.getEntity())) return;
-        DamageSource source = event.getSource();
         if (event.getAmount() <= 0) return;
+
+        DamageSource source = event.getSource();
+
         if (!Events.isAttack(source) && !BHTAPI.isCustom(source.getDirectEntity())) return;
         if (source instanceof IndirectEntityDamageSource && !BHTAPI.isCustom(source.getDirectEntity())) return;
         if (!(source.getDirectEntity() instanceof LivingEntity) && !BHTAPI.isCustom(source.getDirectEntity())) return;
