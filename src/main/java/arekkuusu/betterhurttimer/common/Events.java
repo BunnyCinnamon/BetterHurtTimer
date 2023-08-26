@@ -41,9 +41,6 @@ public class Events {
         if (event.level.isClientSide()) return;
 
         for (Entity entity : ((ServerLevel) event.level).getEntities().getAll()) {
-            // Invulnerable Off
-            entity.invulnerableTime = 0;
-            // Invulnerable Off
             Capabilities.hurt(entity).ifPresent(capability -> {
                 //Source Damage i-Frames
                 if (!capability.hurtMap.isEmpty()) {
