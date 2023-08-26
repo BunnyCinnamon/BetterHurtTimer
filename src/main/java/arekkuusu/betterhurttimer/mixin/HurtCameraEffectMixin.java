@@ -22,7 +22,7 @@ public class HurtCameraEffectMixin {
             info.cancel();
         }
 
-        EntityLivingBase cameraEntity = (EntityLivingBase) Minecraft.getMinecraft().getCameraEntity();
+        EntityLivingBase cameraEntity = (EntityLivingBase) Minecraft.getMinecraft().getRenderViewEntity();
         if (cameraEntity != null) {
             if (this.oldHurt == 0) {
                 this.oldHurt = cameraEntity.hurtTime;

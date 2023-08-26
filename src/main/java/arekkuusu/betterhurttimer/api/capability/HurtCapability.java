@@ -3,7 +3,7 @@ package arekkuusu.betterhurttimer.api.capability;
 import arekkuusu.betterhurttimer.BHT;
 import arekkuusu.betterhurttimer.api.BHTAPI;
 import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
-import arekkuusu.betterhurttimer.api.capability.data.HurtSourceInfo.HurtSourceData;
+import arekkuusu.betterhurttimer.api.capability.data.HurtSourceData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.entity.Entity;

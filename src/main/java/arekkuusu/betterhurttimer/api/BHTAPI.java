@@ -12,15 +12,18 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 public final class BHTAPI {
 
-    public static final Function<EntityLivingBase, Function<CharSequence, HurtSourceInfo>> HURT_SOURCE_INFO_FUNCTION = e -> s -> new HurtSourceInfo(s, false, e.maxHurtResistantTime);
     public static final Function<HurtSourceInfo, Function<CharSequence, HurtSourceData>> HURT_SOURCE_DATA_FUNCTION = i -> s -> new HurtSourceData(i);
     public static final Object2ObjectMap<CharSequence, HurtSourceInfo> DAMAGE_SOURCE_INFO_MAP = new Object2ObjectArrayMap<>();
     public static final Map<ResourceLocation, Double> ATTACK_THRESHOLD_MAP = new LinkedHashMap<>();
@@ -31,6 +34,14 @@ public final class BHTAPI {
     static {
         field = ObfuscationReflectionHelper.findField(EntityLivingBase.class, "field_184617_aD");
         field.setAccessible(true);
+    }
+
+    public static boolean isCustom(@Nullable Entity entity) {
+        ResourceLocation location = null;
+        if (entity != null) {
+            location = Objects.requireNonNull(EntityRegistry.getEntry(entity.getClass())).getRegistryName();
+        }
+        return BHTAPI.ATTACK_THRESHOLD_MAP.containsKey(location);
     }
 
     public static synchronized void addSource(HurtSourceInfo info) {
@@ -45,10 +56,11 @@ public final class BHTAPI {
         BHTAPI.ATTACK_ITEM_THRESHOLD_MAP.put(location, threshold);
     }
 
-    public static HurtSourceData get(EntityLivingBase entity, DamageSource source) {
+    public static Optional<HurtSourceData> get(EntityLivingBase entity, DamageSource source) {
         HurtSourceInfo info = BHTAPI.DAMAGE_SOURCE_INFO_MAP.get(source.getDamageType());
+        if (info == null) return Optional.empty();
         return Capabilities.hurt(entity).map(c ->
                 c.hurtMap.computeIfAbsent(info.sourceName, BHTAPI.HURT_SOURCE_DATA_FUNCTION.apply(info))
-        ).orElseThrow(UnsupportedOperationException::new);
+        );
     }
 }

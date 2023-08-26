@@ -4,7 +4,6 @@ import arekkuusu.betterhurttimer.BHT;
 import arekkuusu.betterhurttimer.BHTConfig;
 import arekkuusu.betterhurttimer.api.BHTAPI;
 import arekkuusu.betterhurttimer.api.capability.Capabilities;
-import arekkuusu.betterhurttimer.api.capability.HurtCapability;
 import arekkuusu.betterhurttimer.api.capability.data.AttackInfo;
 import arekkuusu.betterhurttimer.api.capability.data.HurtSourceData;
 import arekkuusu.betterhurttimer.api.event.PreLivingAttackEvent;
@@ -19,18 +18,20 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Mod.EventBusSubscriber(modid = BHT.MOD_ID)
 public class Events {
@@ -39,9 +40,9 @@ public class Events {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onNonLivingEntityUpdate(TickEvent.WorldTickEvent event) {
-        if (isClientWorld(event.getEntity())) return;
+        if (event.world.isRemote) return;
 
-        for (Entity entity : ((ServerLevel) event.world).getEntities().getAll()) {
+        for (Entity entity : event.world.getLoadedEntityList()) {
             Capabilities.hurt(entity).ifPresent(capability -> {
                 //Source Damage i-Frames
                 if (!capability.hurtMap.isEmpty()) {
@@ -74,18 +75,18 @@ public class Events {
         if (isClientWorld(event.getEntityLiving())) return;
 
         DamageSource source = event.getSource();
-        LivingEntity entity = event.getEntityLiving();
-        LazyOptional<HurtSourceData> optional = BHTAPI.get(entity, source);
+        EntityLivingBase entity = event.getEntityLiving();
+        Optional<HurtSourceData> optional = BHTAPI.get(entity, source);
 
-        if (Events.isAttack(source) && !(source instanceof IndirectEntityDamageSource)) return;
+        if (Events.isAttack(source) && !(source instanceof EntityDamageSourceIndirect)) return;
         if (!optional.isPresent()) return;
 
         HurtSourceData data = optional.orElseThrow(UnsupportedOperationException::new);
 
         if (!data.canApply()) {
             float lastAmount = event.getAmount();
-            if (Double.compare(data.lastHurtAmount + BHTConfig.Runtime.DamageFrames.nextAttackDamageDifference, event.getAmount()) > 0) {
-                if (BHTConfig.Runtime.DamageFrames.nextAttackDamageDifferenceApply) {
+            if (Double.compare(data.lastHurtAmount + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference, event.getAmount()) > 0) {
+                if (BHTConfig.CONFIG.damageFrames.nextAttackDamageDifferenceApply) {
                     event.setAmount(lastAmount - Math.max(0, (float) data.lastHurtAmount));
                 }
                 data.lastHurtAmount = lastAmount;
@@ -123,9 +124,9 @@ public class Events {
 
         DamageSource source = event.getSource();
 
-        if (!Events.isAttack(source) && !BHTAPI.isCustom(source.getDirectEntity())) return;
-        if (source instanceof IndirectEntityDamageSource && !BHTAPI.isCustom(source.getDirectEntity())) return;
-        if (!(source.getDirectEntity() instanceof LivingEntity) && !BHTAPI.isCustom(source.getDirectEntity())) return;
+        if (!Events.isAttack(source) && !BHTAPI.isCustom(source.getImmediateSource())) return;
+        if (source instanceof EntityDamageSourceIndirect && !BHTAPI.isCustom(source.getImmediateSource())) return;
+        if (!(source.getImmediateSource() instanceof EntityLivingBase) && !BHTAPI.isCustom(source.getImmediateSource())) return;
 
         Entity target = event.getEntity();
         Entity attacker = source.getImmediateSource();

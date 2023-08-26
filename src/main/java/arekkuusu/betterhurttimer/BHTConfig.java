@@ -48,32 +48,31 @@ public class BHTConfig {
                     "\n\n# If the next attack deals more than the previous the difference is applied" +
                     "\n")
             public String[] damageSource = {
-                    "^inFire$:false:10",
-                    "^lightningBolt$:false:10",
-                    "^lava$:false:10",
-                    "^hotFloor$:false:10",
-                    "^inWall$:false:10",
-                    "^cramming$:false:10",
-                    "^cactus$:false:10",
-                    "^fall$:false:0",
-                    "^flyIntoWall$:false:0",
-                    "^outOfWorld$:false:10",
-                    "^generic$:false:5",
-                    "^magic$:false:10",
-                    "^wither$:false:10",
-                    "^anvil$:false:10",
-                    "^fallingBlock$:false:10",
-                    "^dragonBreath$:false:10",
-                    "^arrow$:true:10",
-                    "^thrown$:true:10",
-                    "^indirectMagic$:false:10",
-                    "^thorns$:false:5",
-                    "^explosion\\.player$:false:5",
-                    "^skill$:true:20",
-                    "^indirectSkill$:true:20"
+                    "^inFire$:10",
+                    "^onFire:10",
+                    "^lightningBolt$:10",
+                    "^lava$:10",
+                    "^hotFloor$:10",
+                    "^inWall$:10",
+                    "^cramming$:10",
+                    "^cactus$:10",
+                    "^fall$:0",
+                    "^flyIntoWall$:0",
+                    "^outOfWorld$:10",
+                    "^generic$:5",
+                    "^magic$:10",
+                    "^wither$:10",
+                    "^anvil$:10",
+                    "^fallingBlock$:10",
+                    "^dragonBreath$:10",
+                    "^indirectMagic$:10",
+                    "^thorns$:5",
+                    "^explosion\\.player$:5"
             };
             @Config.RangeDouble(min = 0)
             public double nextAttackDamageDifference = 0.5D;
+            @Config.RangeDouble(min = 0)
+            public boolean nextAttackDamageDifferenceApply = true;
         }
 
         public static class AttackFrames {
