@@ -13,10 +13,30 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EntityRenderer.class)
 public class HurtCameraEffectMixin {
 
+    int oldHurt;
+    int oldTick;
+
     @Inject(method = "hurtCameraEffect", at = @At(target = "Lnet/minecraft/entity/EntityLivingBase;hurtTime:I", value = "FIELD", ordinal = 0), cancellable = true)
     private void hurtCameraEffect(float partialTicks, CallbackInfo info) {
-        if (!BHTConfig.RENDER_CONFIG.rendering.doHurtCameraEffect || (ClientProxy.preHurtRender > 0)) {
+        if (!BHTConfig.RENDER_CONFIG.rendering.doHurtCameraEffect) {
             info.cancel();
+        }
+
+        EntityLivingBase cameraEntity = (EntityLivingBase) Minecraft.getMinecraft().getCameraEntity();
+        if (cameraEntity != null) {
+            if (this.oldHurt == 0) {
+                this.oldHurt = cameraEntity.hurtTime;
+            }
+            if (this.oldHurt > cameraEntity.hurtTime) {
+                this.oldHurt = cameraEntity.hurtTime;
+            }
+            if (this.oldHurt < cameraEntity.hurtTime) {
+                cameraEntity.hurtTime = this.oldHurt;
+                if (this.oldTick != cameraEntity.ticksExisted) {
+                    --this.oldHurt;
+                }
+                this.oldTick = cameraEntity.ticksExisted;
+            }
         }
     }
 }

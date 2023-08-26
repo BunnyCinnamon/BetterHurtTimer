@@ -24,9 +24,6 @@ public abstract class HurtTimeMixin extends Entity {
 
     @Shadow
     public int hurtTime;
-    @Shadow
-    public float attackedAtYaw;
-    public float preAttackedAtYaw;
     public int preHurtTime;
     public DamageSource preDamageSource;
 
@@ -41,13 +38,6 @@ public abstract class HurtTimeMixin extends Entity {
         } else {
             this.preHurtTime = 0;
         }
-        if (this.attackedAtYaw > 0) {
-            this.preAttackedAtYaw = this.attackedAtYaw;
-        } else {
-            this.preAttackedAtYaw = 0;
-        }
-        //noinspection ConstantConditions
-        BHT.getProxy().setPreHurtTime((EntityLivingBase) ((Object) this));
         this.preDamageSource = source;
     }
 
@@ -70,6 +60,9 @@ public abstract class HurtTimeMixin extends Entity {
     @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;hurtTime:I", shift = At.Shift.AFTER))
     public void hurtResistantTime(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
         this.hurtResistantTime = BHTConfig.CONFIG.damageFrames.hurtResistantTime;
+        if (this.preHurtTime > 0) {
+            this.hurtTime = this.preHurtTime;
+        }
     }
 
     @Redirect(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setEntityState(Lnet/minecraft/entity/Entity;B)V", ordinal = 2))
@@ -85,16 +78,6 @@ public abstract class HurtTimeMixin extends Entity {
     public void playHurtSound(EntityLivingBase that, DamageSource source) {
         if (this.preHurtTime == 0) {
             this.playHurtSound(source);
-        }
-    }
-
-    @Inject(method = "attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", at = @At("TAIL"))
-    public void attackEntityFromAfter(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
-        if (this.preHurtTime > 0) {
-            this.hurtTime = this.preHurtTime;
-        }
-        if (this.preAttackedAtYaw > 0) {
-            this.attackedAtYaw = this.preAttackedAtYaw;
         }
     }
 
