@@ -22,6 +22,7 @@ public final class BHTConfig {
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> attackThreshold;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> attackSources;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> knockbackExemptSource;
+        public final ForgeConfigSpec.BooleanValue compatibilityMode;
 
         public Common(ForgeConfigSpec.Builder builder) {
             builder.comment("Server configuration settings")
@@ -55,30 +56,27 @@ public final class BHTConfig {
                             "\n\n# If the next attack deals more than the previous the difference is applied" +
                             "\n")
                     .defineList("damageSources", () -> Arrays.asList(
-                            "^inFire$:false:10",
-                            "^lightningBolt$:false:10",
-                            "^lava$:false:10",
-                            "^hotFloor$:false:10",
-                            "^inWall$:false:10",
-                            "^cramming$:false:10",
-                            "^cactus$:false:10",
-                            "^fall$:false:0",
-                            "^flyIntoWall$:false:0",
-                            "^outOfWorld$:false:10",
-                            "^generic$:false:5",
-                            "^magic$:false:10",
-                            "^wither$:false:10",
-                            "^anvil$:false:10",
-                            "^fallingBlock$:false:10",
-                            "^dragonBreath$:false:10",
-                            "^arrow$:true:10",
-                            "^thrown$:true:10",
-                            "^indirectMagic$:false:10",
-                            "^thorns$:false:5",
-                            "^explosion\\.player$:false:5",
-                            "^mob$:true:5",
-                            "^skill$:true:20",
-                            "^indirectSkill$:true:20"
+                            "^inFire$:10",
+                            "^onFire:10",
+                            "^lightningBolt$:10",
+                            "^lava$:10",
+                            "^hotFloor$:10",
+                            "^inWall$:10",
+                            "^cramming$:10",
+                            "^cactus$:10",
+                            "^fall$:0",
+                            "^flyIntoWall$:0",
+                            "^outOfWorld$:10",
+                            "^generic$:5",
+                            "^magic$:10",
+                            "^wither$:10",
+                            "^anvil$:10",
+                            "^fallingBlock$:10",
+                            "^dragonBreath$:10",
+                            "^indirectMagic$:10",
+                            "^thorns$:5",
+                            "^explosion\\.player$:5",
+                            "^mob$:5"
                     ), o -> true);
             nextAttackDamageDifference = builder
                     .comment("How much more damage the next attack must have to be accepted within the i-Frame")
@@ -104,7 +102,7 @@ public final class BHTConfig {
                             "\n\n\nExample:" +
                             "\n- minecraft:slime:1 -> 'Slime' from mod 'Minecraft' will only be able to attack when its attack reload time is 100%." +
                             "\n")
-                    .defineList("attackThreshold.customs", () -> Arrays.asList("minecraft:slime:1", "tconstruct:blueslime:1", "thaumcraft:thaumslime:1"), o -> true);
+                    .defineList("attackThreshold.customs", () -> Arrays.asList("minecraft:slime:1", "tconstruct:blueslime:1", "thaumcraft:thaumslime:1", "dummmmmmy:target_dummy:1"), o -> true);
             attackSources = builder
                     .comment("Damage Sources from direct hits." +
                             "\n\nExample: Players and Mobs melee Damage Source.\n")
@@ -117,6 +115,13 @@ public final class BHTConfig {
             knockbackExemptSource = builder
                     .comment("Damage Sources will not apply knockback when on this list.")
                     .defineList("exemptSources", () -> Arrays.asList("indirectSkill"), o -> true);
+            builder.pop();
+            // compatability mode
+            builder.comment("Compatability mode")
+                    .push("compatability");
+            compatibilityMode = builder
+                    .comment("Mixins will not apply when this is true.")
+                    .define("turnOffMixins", false);
             builder.pop();
             builder.pop();
         }
@@ -194,6 +199,8 @@ public final class BHTConfig {
             Runtime.AttackFrames.attackSources = Holder.COMMON.attackSources.get();
             // KnockbackFrames
             Runtime.KnockbackFrames.knockbackExemptSource = Holder.COMMON.knockbackExemptSource.get();
+            // Compatibility
+            Runtime.Compatibility.turnOffMixins = Holder.COMMON.compatibilityMode.get();
         }
     }
 
@@ -224,6 +231,10 @@ public final class BHTConfig {
             public static boolean showDamageParticles;
             public static int damageColor;
             public static int healColor;
+        }
+
+        public static class Compatibility {
+            public static boolean turnOffMixins;
         }
     }
 }

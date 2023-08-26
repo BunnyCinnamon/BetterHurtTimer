@@ -87,12 +87,24 @@ public final class BHT {
 
     public void initDamageFrames() {
         BHTAPI.DAMAGE_SOURCE_INFO_MAP.clear();
-        String patternAttackFrames = "^(.*):(true|false):?(\\d*)";
+        String patternAttackFramesLegacy = "^(.*):(true|false):(\\d+)$";
+        Pattern rLegacy = Pattern.compile(patternAttackFramesLegacy);
+        String patternAttackFrames = "^(.*):(\\d+)$";
         Pattern r = Pattern.compile(patternAttackFrames);
         for (String s : BHTConfig.Runtime.DamageFrames.damageSource) {
+            Matcher mLegacy = rLegacy.matcher(s);
             Matcher m = r.matcher(s);
-            if (m.matches()) {
-                BHTAPI.addSource(new HurtSourceInfo(m.group(1), Boolean.parseBoolean(m.group(2)), Integer.parseInt(m.group(3))));
+            if (mLegacy.matches()) {
+                BHTAPI.addSource(new HurtSourceInfo(mLegacy.group(1), Integer.parseInt(mLegacy.group(3))));
+                BHT.LOG.fatal("[Damage Frames Config] - String " + s + " is no longer a valid format, please DELETE and BACKUP the betterhurttimer-common.toml file");
+                BHT.LOG.fatal("[Damage Frames Config] - String " + s + " is no longer a valid format, please DELETE and BACKUP the betterhurttimer-common.toml file");
+                BHT.LOG.fatal("[Damage Frames Config] - String " + s + " is no longer a valid format, please DELETE and BACKUP the betterhurttimer-common.toml file");
+                BHT.LOG.fatal("[Damage Frames Config] - String " + s + " is no longer a valid format, please DELETE and BACKUP the betterhurttimer-common.toml file");
+                BHT.LOG.fatal("[Damage Frames Config] - String " + s + " is no longer a valid format, please DELETE and BACKUP the betterhurttimer-common.toml file");
+                BHT.LOG.fatal("[Damage Frames Config] - String " + s + " is no longer a valid format, please DELETE and BACKUP the betterhurttimer-common.toml file");
+                BHT.LOG.fatal("[Damage Frames Config] - String " + s + " is no longer a valid format, please DELETE and BACKUP the betterhurttimer-common.toml file");
+            } else if (m.matches()) {
+                BHTAPI.addSource(new HurtSourceInfo(m.group(1), Integer.parseInt(m.group(2))));
             } else {
                 BHT.LOG.warn("[Damage Frames Config] - String " + s + " is not a valid format");
             }
