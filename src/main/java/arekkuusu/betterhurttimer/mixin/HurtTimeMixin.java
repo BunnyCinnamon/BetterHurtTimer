@@ -68,7 +68,7 @@ public abstract class HurtTimeMixin extends Entity {
         }
     }
 
-    @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;broadcastEntityEvent(Lnet/minecraft/world/entity/Entity;B)V", ordinal = 2))
+    @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;broadcastEntityEvent(Lnet/minecraft/world/entity/Entity;B)V", ordinal = 0))
     public void turnOffSound(Level world, Entity entity, byte b) {
         if (b == 2 || b == 33 || b == 36 || b == 37) {
             if (this.preHurtTime == 0) {
