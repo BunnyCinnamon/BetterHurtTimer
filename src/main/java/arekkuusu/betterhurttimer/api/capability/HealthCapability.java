@@ -33,14 +33,4 @@ public class HealthCapability implements ICapabilitySerializable<CompoundTag> {
     @Override
     public void deserializeNBT(CompoundTag nbt) {
     }
-
-    public static class Handler {
-        private static final ResourceLocation KEY = new ResourceLocation(BHT.MOD_ID, "health");
-
-        @SubscribeEvent
-        public void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-            if (event.getObject() instanceof LivingEntity && event.getObject().getLevel().isClientSide())
-                event.addCapability(KEY, new HealthCapability());
-        }
-    }
 }

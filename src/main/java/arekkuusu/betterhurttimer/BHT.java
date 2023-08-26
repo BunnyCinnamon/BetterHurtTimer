@@ -45,7 +45,6 @@ public final class BHT {
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
         MinecraftForge.EVENT_BUS.addListener(this::registerCaps);
         MinecraftForge.EVENT_BUS.register(new HurtCapability.Handler());
-        MinecraftForge.EVENT_BUS.register(new HealthCapability.Handler());
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onModConfigEvent);
     }
 
