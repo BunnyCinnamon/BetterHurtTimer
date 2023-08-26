@@ -26,9 +26,6 @@ public abstract class HurtTimeMixin extends Entity {
 
     @Shadow
     public int hurtTime;
-    @Shadow
-    public float hurtDir;
-    public float preAttackedAtYaw;
     public int preHurtTime;
     public DamageSource preDamageSource;
 
@@ -43,13 +40,6 @@ public abstract class HurtTimeMixin extends Entity {
         } else {
             this.preHurtTime = 0;
         }
-        if (this.hurtDir > 0) {
-            this.preAttackedAtYaw = this.hurtDir;
-        } else {
-            this.preAttackedAtYaw = 0;
-        }
-        //noinspection ConstantConditions
-        BHT.getProxy().setPreHurtTime((LivingEntity) ((Object) this));
         this.preDamageSource = source;
     }
 
@@ -73,6 +63,9 @@ public abstract class HurtTimeMixin extends Entity {
     @Inject(method = "hurt", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;hurtTime:I", shift = At.Shift.AFTER))
     public void hurtResistantTime(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
         this.invulnerableTime = BHTConfig.Runtime.DamageFrames.hurtResistantTime;
+        if (this.preHurtTime > 0) {
+            this.hurtTime = this.preHurtTime;
+        }
     }
 
     @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;broadcastEntityEvent(Lnet/minecraft/world/entity/Entity;B)V", ordinal = 2))
@@ -88,16 +81,6 @@ public abstract class HurtTimeMixin extends Entity {
     public void playHurtSound(LivingEntity that, DamageSource source) {
         if (this.preHurtTime == 0) {
             this.playHurtSound(source);
-        }
-    }
-
-    @Inject(method = "hurt", at = @At("TAIL"))
-    public void attackEntityFromAfter(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
-        if (this.preHurtTime > 0) {
-            this.hurtTime = this.preHurtTime;
-        }
-        if (this.preAttackedAtYaw > 0) {
-            this.hurtDir = this.preAttackedAtYaw;
         }
     }
 
