@@ -42,7 +42,7 @@ public class Events {
     public static void onNonLivingEntityUpdate(TickEvent.WorldTickEvent event) {
         if (event.world.isRemote) return;
 
-        for (Entity entity : event.world.getLoadedEntityList()) {
+        for (Entity entity : event.world.loadedEntityList) {
             Capabilities.hurt(entity).ifPresent(capability -> {
                 //Source Damage i-Frames
                 if (!capability.hurtMap.isEmpty()) {

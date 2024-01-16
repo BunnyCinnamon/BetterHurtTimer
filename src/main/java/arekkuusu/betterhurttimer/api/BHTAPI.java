@@ -12,6 +12,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 
 import javax.annotation.Nullable;
@@ -39,7 +40,10 @@ public final class BHTAPI {
     public static boolean isCustom(@Nullable Entity entity) {
         ResourceLocation location = null;
         if (entity != null) {
-            location = Objects.requireNonNull(EntityRegistry.getEntry(entity.getClass())).getRegistryName();
+            EntityEntry entry = EntityRegistry.getEntry(entity.getClass());
+            if (entry != null) {
+                location = entry.getRegistryName();
+            }
         }
         return BHTAPI.ATTACK_THRESHOLD_MAP.containsKey(location);
     }
