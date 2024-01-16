@@ -98,7 +98,7 @@ public class Events {
     @SubscribeEvent
     public static void onPlayerAttack(AttackEntityEvent event) {
         if (isClientWorld(event.getEntity())) return;
-        if (!event.getEntity().level.isClientSide() && event.getEntity() instanceof FakePlayer) return;
+        if (!event.getEntity().level().isClientSide() && event.getEntity() instanceof FakePlayer) return;
         Capabilities.hurt(event.getEntity()).ifPresent(capability -> {
             final AttackInfo attackInfo = capability.meleeMap.computeIfAbsent(event.getTarget(), BHTAPI.INFO_FUNCTION);
             Entity target = event.getTarget();
@@ -209,6 +209,6 @@ public class Events {
     }
 
     public static boolean isClientWorld(Entity entity) {
-        return entity.getLevel().isClientSide();
+        return entity.level().isClientSide();
     }
 }

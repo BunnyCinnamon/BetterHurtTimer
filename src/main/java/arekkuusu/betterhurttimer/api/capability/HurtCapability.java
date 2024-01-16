@@ -64,7 +64,7 @@ public class HurtCapability implements ICapabilitySerializable<CompoundTag> {
             event.addCapability(KEY, new HurtCapability());
             if (event.getObject() instanceof LivingEntity)
                 ((LivingEntity) event.getObject()).attackStrengthTicker = -1;
-            if (event.getObject() instanceof LivingEntity && event.getObject().getLevel().isClientSide())
+            if (event.getObject() instanceof LivingEntity && event.getObject().level().isClientSide())
                 event.addCapability(KEY2, new HealthCapability());
         }
 

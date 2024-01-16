@@ -20,7 +20,7 @@ public class Events {
     @SubscribeEvent
     public static void displayDamage(LivingEvent.LivingTickEvent event) {
         LivingEntity entity = event.getEntity();
-        if (!entity.level.isClientSide() || !BHTConfig.Runtime.Rendering.showDamageParticles) return;
+        if (!entity.level().isClientSide() || !BHTConfig.Runtime.Rendering.showDamageParticles) return;
 
         Capabilities.health(entity).ifPresent(cap -> {
         int currentHealth = (int) Math.ceil(entity.getHealth());
@@ -34,7 +34,7 @@ public class Events {
     public static void displayParticle(Entity entity, int damage) {
         if (damage == 0) return;
 
-        ClientLevel world = (ClientLevel) entity.level;
+        ClientLevel world = (ClientLevel) entity.level();
         double motionX = world.random.nextGaussian() * 0.02;
         double motionY = 0.5f;
         double motionZ = world.random.nextGaussian() * 0.02;

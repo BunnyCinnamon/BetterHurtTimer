@@ -82,6 +82,6 @@ public class CommandExport {
 
     private static void message(CommandSourceStack commandSource, String type, Object... args) {
         String key = "command." + BHT.MOD_ID + "." + type;
-        commandSource.sendSuccess(Component.translatable(key, args), true);
+        commandSource.sendSuccess(() -> Component.translatable(key, args), true);
     }
 }
