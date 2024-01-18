@@ -26,8 +26,10 @@ public abstract class DamageSpecialArmorMixin {
             if (capability.ticksToArmorDamage > 0) {
                 if (Double.compare(Math.max(0, capability.lastArmorDamage + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference), damage) < 0) {
                     damageAlt = damage - capability.lastArmorDamage;
-                    capability.lastArmorDamage = damage;
+                } else {
+                    damageAlt = damage;
                 }
+                capability.lastArmorDamage = damage;
             } else {
                 damageAlt = damage;
                 capability.lastArmorDamage = damage;
@@ -37,7 +39,7 @@ public abstract class DamageSpecialArmorMixin {
         }
     }
 
-    @ModifyVariable(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At("HEAD"), remap = false, argsOnly = true)
+    @ModifyVariable(method = "applyArmor(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/util/NonNullList;Lnet/minecraft/util/DamageSource;D)F", at = @At(target = "Ljava/util/ArrayList;<init>()V", value = "INVOKE", shift = At.Shift.AFTER), remap = false, argsOnly = true)
     private static double applyArmorPost(double damage) {
         return damageAlt;
     }
