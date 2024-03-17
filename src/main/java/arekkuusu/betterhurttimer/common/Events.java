@@ -85,7 +85,7 @@ public class Events {
 
         if (!data.canApply()) {
             float lastAmount = event.getAmount();
-            if (Double.compare(data.lastHurtAmount + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference, event.getAmount()) > 0) {
+            if (data.lastHurtAmount == 0 || Double.compare(data.lastHurtAmount + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference, event.getAmount()) > 0) {
                 if (BHTConfig.CONFIG.damageFrames.nextAttackDamageDifferenceApply) {
                     event.setAmount(lastAmount - Math.max(0, (float) data.lastHurtAmount));
                 }
