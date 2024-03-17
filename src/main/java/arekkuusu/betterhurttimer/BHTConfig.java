@@ -1,6 +1,10 @@
 package arekkuusu.betterhurttimer;
 
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Config(modid = BHT.MOD_ID, name = BHT.MOD_ID)
 public class BHTConfig {
@@ -135,6 +139,14 @@ public class BHTConfig {
             public boolean showDamageParticles = true;
             public int damageColor = 0xFF0000;
             public int healColor = 0x00FF00;
+        }
+    }
+
+    @Mod.EventBusSubscriber(modid = BHT.MOD_ID)
+    public static class EventHandler {
+        @SubscribeEvent
+        public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+            if (event.getModID().equals(BHT.MOD_ID)) ConfigManager.sync(BHT.MOD_ID, Config.Type.INSTANCE);
         }
     }
 }
