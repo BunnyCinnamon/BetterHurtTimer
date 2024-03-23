@@ -4,7 +4,7 @@ public class HurtSourceData {
 
     public final HurtSourceInfo info;
     public double lastHurtAmount;
-    public int lastHurtTick;
+    public int lastHurtTick = -1;
 
     public HurtSourceData(HurtSourceInfo info) {
         this.info = info;
