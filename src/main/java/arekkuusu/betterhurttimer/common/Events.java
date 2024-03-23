@@ -82,10 +82,11 @@ public class Events {
         if (!optional.isPresent()) return;
 
         HurtSourceData data = optional.orElseThrow(UnsupportedOperationException::new);
+        if (data.lastHurtTick == -1) return; // First-time damage
 
         if (!data.canApply()) {
             float lastAmount = event.getAmount();
-            if (data.lastHurtAmount == 0 || Double.compare(data.lastHurtAmount + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference, event.getAmount()) > 0) {
+            if (Double.compare(data.lastHurtAmount + BHTConfig.CONFIG.damageFrames.nextAttackDamageDifference, event.getAmount()) > 0) {
                 if (BHTConfig.CONFIG.damageFrames.nextAttackDamageDifferenceApply) {
                     event.setAmount(lastAmount - Math.max(0, (float) data.lastHurtAmount));
                 }
